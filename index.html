@@ -53,6 +53,16 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
 .warranty-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .warranty-line input { flex: 1; min-width: 200px; margin: 0; }
 #status { font-size: 13px; color: green; margin-left: 10px; }
+
+/* 打印PDF专用样式 */
+@media print {
+    .top-bar, .tab-bar, #btnPrint, #status { display: none !important; }
+    .page { display: block !important; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    .card { background: transparent !important; border: none; padding: 0; margin: 0 0 20px 0; }
+    body { background: white !important; color: black !important; padding: 10px; }
+    .checklist-row { border-bottom: 1px solid #ccc !important; }
+}
 </style>
 </head>
 <body>
@@ -61,7 +71,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
     <button class="btn-green" id="btnSave">💾 保存</button>
     <button class="btn-gray" id="btnLoad">📂 读取</button>
     <button class="btn-orange" id="btnExcel">📊 Excel</button>
-    <button class="btn-red" id="btnPDF">📄 PDF</button>
+    <button class="btn-red" id="btnPrint">📄 PDF</button>
     <button class="btn-gray" id="btnDark">🌙</button>
     <button class="btn-gray" id="btnLang">中文/EN</button>
     <span id="status">就绪</span>
@@ -375,7 +385,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
 <script>
 let useEnglish = false, darkMode = false, snags = [], snagId = 0;
 
-// === 标签页切换 — 最简单稳定写法 ===
+// === 标签页切换 ===
 document.querySelectorAll('.tab').forEach(tab => {
     tab.onclick = function() {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -413,9 +423,9 @@ function autoSave() {
 // === 收集数据 ===
 function gather() {
     const gchk = id => ({
-        chk: document.getElementById(id).checked,
-        zh: document.querySelector(`#${id}+span.lang-zh`).textContent.trim(),
-        en: document.querySelector(`#${id}+span.lang-en`).textContent.trim()
+        chk: !!document.getElementById(id).checked,
+        zh: document.querySelector(`#${id}+span.lang-zh`)?.textContent?.trim()||'',
+        en: document.querySelector(`#${id}+span.lang-en`)?.textContent?.trim()||''
     });
     return {
         L: useEnglish ? 'en' : 'zh',
@@ -450,12 +460,12 @@ function restore(d) {
     useEnglish = d.L==='en'; document.body.classList.toggle('use-en', useEnglish);
     darkMode = !!d.D; document.body.classList.toggle('dark', darkMode);
     if(d.info) {
-        document.getElementById('custName').value=d.info.n||'';
-        document.getElementById('custPhone').value=d.info.p||'';
-        document.getElementById('siteAddr').value=d.info.a||'';
-        document.getElementById('orderID').value=d.info.o||'';
-        document.getElementById('salesPerson').value=d.info.s||'';
-        document.getElementById('siteManager').value=d.info.m||'';
+        Object.assign(document.getElementById('custName'), {value:d.info.n||''});
+        Object.assign(document.getElementById('custPhone'), {value:d.info.p||''});
+        Object.assign(document.getElementById('siteAddr'), {value:d.info.a||''});
+        Object.assign(document.getElementById('orderID'), {value:d.info.o||''});
+        Object.assign(document.getElementById('salesPerson'), {value:d.info.s||''});
+        Object.assign(document.getElementById('siteManager'), {value:d.info.m||''});
     }
     if(d.sched) {
         if(d.sched.m){document.getElementById('date_measure').value=d.sched.m.d||'';document.getElementById('status_measure').value=d.sched.m.v||'';}
@@ -532,7 +542,9 @@ document.getElementById('btnAddSnag').onclick=()=>{snagId++;snags.push({id:snagI
 // === 保存/读取 ===
 document.getElementById('btnSave').onclick=()=>{
     const d=gather(); const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`交付确认书_${d.info.n||'项目'}.json`;a.click();setStatus('已保存 ✓');
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`交付确认书_${d.info.n||'项目'}.json`;a.click();
+    URL.revokeObjectURL(a.href); // 清理防止内存溢出
+    setStatus('已保存 ✓');
 };
 document.getElementById('btnLoad').onclick=()=>{
     const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{
@@ -540,7 +552,7 @@ document.getElementById('btnLoad').onclick=()=>{
     };i.click();
 };
 
-// === Excel ===
+// === ✅ 修复：Excel 直接下载，不绕弯 ===
 document.getElementById('btnExcel').onclick=()=>{
     const d=gather(); const L=useEnglish;
     const rows=[];
@@ -573,7 +585,7 @@ document.getElementById('btnExcel').onclick=()=>{
     rows.push([L?'Period':'期限',d.war.p]);
     rows.push([]);
     rows.push([L?'Snag List':'整改记录']);
-    rows.push([L?'Priority':'优先级',L?'Location':'位置',L?'Issue':'问题',L?'Date':'日期',L?'Status':'状态']);
+    rows.push([L?'Priority':'优先级',L?'Location':'位置',L?'Issue':'问题',L?'Due Date':'日期',L?'Status':'状态']);
     if(!d.snags.length)rows.push([L?'None':'无记录','','','','']);
     else d.snags.forEach(x=>rows.push([x.p,x.l,x.x,x.d,x.s]));
     rows.push([]);
@@ -581,74 +593,24 @@ document.getElementById('btnExcel').onclick=()=>{
     rows.push([L?'Contractor Signature':'施工方签署',d.sign.b]);
     rows.push([L?'Remarks':'备注',d.sign.r]);
     
-    const wb=XLSX.utils.book_new(); const ws=XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols']=[{wch:10},{wch:50},{wch:15},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws,L?'Handover':'交付确认书');
-    XLSX.writeFile(wb,`交付确认书_${d.info.n||'项目'}.xlsx`);
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:10},{wch:50},{wch:15},{wch:30}];
+    XLSX.utils.book_append_sheet(wb, ws, L?'Handover':'交付确认书');
+    XLSX.writeFile(wb, `交付确认书_${d.info.n||'项目'}.xlsx`); // 直接下载
     setStatus('Excel已导出 ✓');
 };
 
-// === PDF ===
-document.getElementById('btnPDF').onclick=()=>{
-    setStatus('生成PDF中...');
-    const d=gather(); const L=useEnglish;
-    const w=window.open('','_blank');
-    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L?'Handover':'交付确认书'}</title><style>
-        body{font-family:"Microsoft YaHei",sans-serif;padding:30px;line-height:1.8}
-        h1{text-align:center;border-bottom:2px solid #234e9e;padding-bottom:10px}
-        h3{margin:15px 0 5px;color:#234e9e;border-bottom:1px solid #eee}
-        table{width:100%;border-collapse:collapse;margin-bottom:10px}
-        td,th{border:1px solid #ccc;padding:7px}
-        th{background:#f0f4f8}
-        .nb td{border:none}
-        .cb{width:30px;text-align:center;font-weight:bold}
-        .pg{page-break-after:always}
-    </style></head><body>
-    <h1>${L?'HANDOVER FORM':'交付确认书'}</h1>
-    <table class="nb">
-        <tr><td style="width:140px;font-weight:bold">${L?'Client Name':'客户姓名'}</td><td>${d.info.n}</td></tr>
-        <tr><td>${L?'Phone':'电话'}</td><td>${d.info.p}</td></tr>
-        <tr><td>${L?'Address':'地址'}</td><td>${d.info.a}</td></tr>
-        <tr><td>${L?'Order No.':'订单号'}</td><td>${d.info.o}</td></tr>
-        <tr><td>${L?'Salesperson':'销售人员'}</td><td>${d.info.s}</td></tr>
-        <tr><td>${L?'Site Manager':'现场主管'}</td><td>${d.info.m}</td></tr>
-    </table>
-    <h3>${L?'Schedule':'项目进度'}</h3>
-    <table><tr><th>${L?'Item':'项目'}</th><th style="width:130px">${L?'Date':'日期'}</th><th>${L?'Status':'状态'}</th></tr>
-        <tr><td>${L?'Re-measurement':'复尺确认'}</td><td>${d.sched.m.d||'-'}</td><td>${d.sched.m.v}</td></tr>
-        <tr><td>${L?'Production':'生产备货'}</td><td>${d.sched.p.d||'-'}</td><td>${d.sched.p.v}</td></tr>
-        <tr><td>${L?'Delivery':'送货到场'}</td><td>${d.sched.d.d||'-'}</td><td>${d.sched.d.v}</td></tr>
-        <tr><td>${L?'Installation':'安装完成'}</td><td>${d.sched.i.d||'-'}</td><td>${d.sched.i.v}</td></tr>
-        <tr><td>${L?'Handover':'验收交付'}</td><td>${d.sched.h.d||'-'}</td><td>${d.sched.h.v}</td></tr>
-    </table>
-    <div class="pg"></div>
-    <h3>${L?'Cabinet Inspection':'柜体验收'}</h3>
-    <table>${d.cab.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
-    <h3>${L?'Ceiling & MEP':'吊顶水电'}</h3>
-    <table>${d.mep.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
-    <h3>${L?'Finishing':'外观细节'}</h3>
-    <table>${d.fin.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
-    <h3>${L?'Warranty':'质保'}</h3>
-    <table class="nb">
-        <tr><td style="width:140px;font-weight:bold">${L?'Coverage':'内容'}</td><td>${d.war.c}</td></tr>
-        <tr><td>${L?'Period':'期限'}</td><td>${d.war.p}</td></tr>
-    </table>
-    <h3>${L?'Snag List':'整改记录'}</h3>
-    <table><tr><th>${L?'Priority':'优先级'}</th><th>${L?'Location':'位置'}</th><th>${L?'Issue':'问题'}</th><th style="width:110px">${L?'Date':'日期'}</th><th>${L?'Status':'状态'}</th></tr>
-        ${!d.snags.length?`<tr><td colspan="5" style="text-align:center">${L?'No records':'无记录'}</td></tr>`:d.snags.map(x=>`<tr><td>${x.p}</td><td>${x.l}</td><td>${x.x}</td><td>${x.d||'-'}</td><td>${x.s}</td></tr>`).join('')}
-    </table>
-    <h3>${L?'Signatures':'签署'}</h3>
-    <table class="nb">
-        <tr><td style="width:140px;font-weight:bold">${L?'Client':'客户'}</td><td>${d.sign.c}</td></tr>
-        <tr><td>${L?'Contractor':'施工方'}</td><td>${d.sign.b}</td></tr>
-        <tr><td>${L?'Remarks':'备注'}</td><td>${d.sign.r}</td></tr>
-    </table>
-    <script>window.print();<\/script></body></html>`);
-    w.document.close();
-    setStatus('PDF已导出 ✓');
+// === ✅ 修复：PDF 改用浏览器原生打印，100%不被拦截 ===
+document.getElementById('btnPrint').onclick=()=>{
+    setStatus('打开打印预览...');
+    setTimeout(()=>{
+        window.print(); // 直接调用 → 选「另存为PDF」
+        setStatus('就绪');
+    }, 100);
 };
 
-// === 页面加载：读取本地保存 ===
+// === 页面加载 ===
 document.addEventListener('DOMContentLoaded', ()=>{
     try{const s=localStorage.getItem('HD');if(s)restore(JSON.parse(s));}catch(e){}
 });
