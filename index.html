@@ -6,76 +6,79 @@
 <title>交付确认书 | Handover Form</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
 body { background: #fff; color: #333; padding: 20px; max-width: 1000px; margin: 0 auto; }
 body.dark { background: #1a1a2e; color: #eee; }
 button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 2px; }
-button:hover { opacity: 0.8; }
-.btn-blue { background: #234e9e; color: white; }
+button:hover { opacity: 0.85; }
 .btn-green { background: #0ea573; color: white; }
+.btn-gray { background: #ddd; color: #333; }
 .btn-orange { background: #f59e0b; color: white; }
 .btn-red { background: #e53935; color: white; }
-.btn-gray { background: #ddd; color: #333; }
+.btn-blue { background: #234e9e; color: white; }
 .top-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
 .tab-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
-.tab { padding: 8px 12px; background: #eee; border-radius: 4px; cursor: pointer; }
+.tab { padding: 8px 12px; background: #eee; border-radius: 4px; cursor: pointer; user-select: none; }
 .tab.active { background: #234e9e; color: white; }
 .page { display: none; }
 .page.active { display: block; }
 .card { background: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
 body.dark .card { background: #16213e; }
 h2 { font-size: 16px; margin-bottom: 12px; color: #234e9e; }
-h3 { font-size: 14px; margin: 10px 0 5px; color: #2b7de9; }
-input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin-top: 3px; margin-bottom: 8px; }
+h3 { font-size: 14px; margin: 15px 0 8px; color: #2b7de9; }
+input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 4px 0 10px; font-size: 14px; }
 body.dark input, body.dark select, body.dark textarea { background: #0f3460; color: white; border-color: #334155; }
-[contenteditable="true"] { padding: 4px; border-radius: 3px; }
-[contenteditable="true"]:focus { outline: 1px solid #234e9e; }
+[contenteditable="true"] { padding: 6px; border-radius: 4px; outline: none; min-height: 32px; display: block; }
+[contenteditable="true"]:focus { outline: 2px solid #234e9e; background: rgba(35,78,158,0.05); }
+.checklist-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 6px; border-bottom: 1px solid #eee; }
+body.dark .checklist-row { border-bottom-color: #333; }
+.checklist-row input[type="checkbox"] { width: 20px; height: 20px; margin: 2px 0 0; cursor: pointer; flex-shrink: 0; }
+.checklist-row span { flex: 1; line-height: 1.6; }
 .check-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; flex-wrap: wrap; }
-.check-item input[type="date"] { flex: 0 0 130px; margin: 0; }
+.check-item input[type="date"] { flex: 0 0 140px; margin: 0; }
 .check-item select { flex: 0 0 220px; margin: 0; }
 .lang-en { display: none; }
 body.use-en .lang-zh { display: none; }
 body.use-en .lang-en { display: inline; }
-.grid-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.grid-row { display: flex; flex-wrap: wrap; gap: 15px; }
 .grid-col { flex: 1; min-width: 200px; }
-.snag-row { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+.snag-row { border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 4px; }
 body.dark .snag-row { border-color: #334155; background: #1e293b; }
-.photo-area { border: 1px dashed #ccc; padding: 8px; text-align: center; margin-top: 8px; border-radius: 4px; }
-.photo-btn { padding: 5px 10px; background: #eee; border-radius: 3px; cursor: pointer; display: inline-block; margin-top: 5px; }
+.photo-area { border: 1px dashed #ccc; padding: 10px; text-align: center; margin: 10px 0; border-radius: 4px; }
+.photo-btn { padding: 6px 12px; background: #eee; border-radius: 4px; cursor: pointer; display: inline-block; }
 .photo-btn:hover { background: #ddd; }
-.photo-preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.photo-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .photo-preview img { width: 80px; height: 60px; object-fit: cover; border-radius: 3px; }
-.del-btn { background: #e53935; color: white; padding: 3px 8px; font-size: 12px; margin-top: 5px; }
-.warranty-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+.del-btn { background: #e53935; color: white; padding: 4px 10px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 8px; }
+.warranty-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .warranty-line input { flex: 1; min-width: 200px; margin: 0; }
-.checklist-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; }
-.checklist-row input { margin-top: 3px; width: auto; }
-.checklist-row span { flex: 1; }
+#status { font-size: 13px; color: green; margin-left: 10px; }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <button class="btn-green" onclick="saveAll()">💾 保存</button>
-    <button class="btn-gray" onclick="loadAll()">📂 读取</button>
-    <button class="btn-orange" onclick="exportExcel()">📊 Excel</button>
-    <button class="btn-red" onclick="exportPDF()">📄 PDF</button>
-    <button class="btn-gray" onclick="toggleDark()">🌙</button>
-    <button class="btn-gray" onclick="toggleLang()">中文/EN</button>
-    <span id="status" style="font-size:12px; color:green;">就绪</span>
+    <button class="btn-green" id="btnSave">💾 保存</button>
+    <button class="btn-gray" id="btnLoad">📂 读取</button>
+    <button class="btn-orange" id="btnExcel">📊 Excel</button>
+    <button class="btn-red" id="btnPDF">📄 PDF</button>
+    <button class="btn-gray" id="btnDark">🌙</button>
+    <button class="btn-gray" id="btnLang">中文/EN</button>
+    <span id="status">就绪</span>
 </div>
 
 <h1 style="text-align:center; margin-bottom:15px;"><span class="lang-zh">交付确认书</span><span class="lang-en">Handover Form</span></h1>
 
 <div class="tab-bar">
-    <div class="tab active" onclick="goTab('p1')">📋 <span class="lang-zh">信息</span><span class="lang-en">Info</span></div>
-    <div class="tab" onclick="goTab('p2')">🗄️ <span class="lang-zh">柜体</span><span class="lang-en">Cabinets</span></div>
-    <div class="tab" onclick="goTab('p3')">🔧 <span class="lang-zh">吊顶水电</span><span class="lang-en">Ceiling/MEP</span></div>
-    <div class="tab" onclick="goTab('p4')">✨ <span class="lang-zh">外观</span><span class="lang-en">Finishing</span></div>
-    <div class="tab" onclick="goTab('p5')">📝 <span class="lang-zh">整改</span><span class="lang-en">Snag List</span></div>
-    <div class="tab" onclick="goTab('p6')">✍️ <span class="lang-zh">签署</span><span class="lang-en">Sign</span></div>
+    <div class="tab active" data-tab="p1">📋 <span class="lang-zh">信息</span><span class="lang-en">Info</span></div>
+    <div class="tab" data-tab="p2">🗄️ <span class="lang-zh">柜体</span><span class="lang-en">Cabinets</span></div>
+    <div class="tab" data-tab="p3">🔧 <span class="lang-zh">吊顶水电</span><span class="lang-en">Ceiling/MEP</span></div>
+    <div class="tab" data-tab="p4">✨ <span class="lang-zh">外观</span><span class="lang-en">Finishing</span></div>
+    <div class="tab" data-tab="p5">📝 <span class="lang-zh">整改</span><span class="lang-en">Snag List</span></div>
+    <div class="tab" data-tab="p6">✍️ <span class="lang-zh">签署</span><span class="lang-en">Sign</span></div>
 </div>
 
+<!-- === 页面1：信息 === -->
 <div class="page active" id="p1">
 <div class="card">
     <h2><span class="lang-zh">项目信息</span><span class="lang-en">Project Info</span></h2>
@@ -97,12 +100,21 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
         <label><span class="lang-zh">订单号</span><span class="lang-en">Order No.</span></label>
         <input type="text" id="orderID">
     </div>
+    <div class="grid-row">
+        <div class="grid-col">
+            <label><span class="lang-zh">销售人员</span><span class="lang-en">Salesperson</span></label>
+            <input type="text" id="salesPerson">
+        </div>
+        <div class="grid-col">
+            <label><span class="lang-zh">现场主管</span><span class="lang-en">Site Manager</span></label>
+            <input type="text" id="siteManager">
+        </div>
+    </div>
 </div>
-
 <div class="card">
     <h2><span class="lang-zh">项目进度</span><span class="lang-en">Project Schedule</span></h2>
     <div class="check-item">
-        <span style="width:140px;"><span class="lang-zh">复尺确认</span><span class="lang-en">Re-measurement</span></span>
+        <span><span class="lang-zh">复尺确认</span><span class="lang-en">Re-measurement</span></span>
         <input type="date" id="date_measure">
         <select id="status_measure">
             <option>🔴 待处理 / Pending</option>
@@ -114,7 +126,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
         </select>
     </div>
     <div class="check-item">
-        <span style="width:140px;"><span class="lang-zh">生产备货</span><span class="lang-en">Production</span></span>
+        <span><span class="lang-zh">生产备货</span><span class="lang-en">Production</span></span>
         <input type="date" id="date_produce">
         <select id="status_produce">
             <option>🔴 待处理 / Pending</option>
@@ -126,7 +138,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
         </select>
     </div>
     <div class="check-item">
-        <span style="width:140px;"><span class="lang-zh">送货到场</span><span class="lang-en">Delivery</span></span>
+        <span><span class="lang-zh">送货到场</span><span class="lang-en">Delivery</span></span>
         <input type="date" id="date_delivery">
         <select id="status_delivery">
             <option>🔴 待处理 / Pending</option>
@@ -138,7 +150,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
         </select>
     </div>
     <div class="check-item">
-        <span style="width:140px;"><span class="lang-zh">安装完成</span><span class="lang-en">Installation</span></span>
+        <span><span class="lang-zh">安装完成</span><span class="lang-en">Installation</span></span>
         <input type="date" id="date_install">
         <select id="status_install">
             <option>🔴 待处理 / Pending</option>
@@ -150,7 +162,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
         </select>
     </div>
     <div class="check-item">
-        <span style="width:140px;"><span class="lang-zh">验收交付</span><span class="lang-en">Handover</span></span>
+        <span><span class="lang-zh">验收交付</span><span class="lang-en">Handover</span></span>
         <input type="date" id="date_handover">
         <select id="status_handover">
             <option>🔴 待处理 / Pending</option>
@@ -164,81 +176,182 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
 </div>
 </div>
 
+<!-- === 页面2：柜体 === -->
 <div class="page" id="p2">
 <div class="card">
     <h2><span class="lang-zh">柜体安装验收</span><span class="lang-en">Cabinet Inspection</span></h2>
     <h3><span class="lang-zh">基础安装</span><span class="lang-en">Installation</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="cab1"><span contenteditable="true" class="lang-zh">柜体水平垂直、缝隙均匀</span><span contenteditable="true" class="lang-en">Level & plumb, even gaps</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab2"><span contenteditable="true" class="lang-zh">连接牢固、无松动异响</span><span contenteditable="true" class="lang-en">Firm, no rattle</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab3"><span contenteditable="true" class="lang-zh">封板收口严密、打胶顺直</span><span contenteditable="true" class="lang-en">Trim tight, sealant neat</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab1">
+        <span contenteditable="true" class="lang-zh">柜体水平垂直、缝隙均匀</span>
+        <span contenteditable="true" class="lang-en">Level & plumb, even gaps</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab2">
+        <span contenteditable="true" class="lang-zh">连接牢固、无松动异响</span>
+        <span contenteditable="true" class="lang-en">Firm connection, no loose or noise</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab3">
+        <span contenteditable="true" class="lang-zh">封板收口严密、打胶顺直</span>
+        <span contenteditable="true" class="lang-en">Trim tight, sealant neat</span>
+    </div>
     <h3><span class="lang-zh">门与铰链</span><span class="lang-en">Doors & Hinges</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="cab4"><span contenteditable="true" class="lang-zh">门缝均匀、开关顺畅</span><span contenteditable="true" class="lang-en">Even gaps, smooth open/close</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab5"><span contenteditable="true" class="lang-zh">铰链牢固、缓冲有效</span><span contenteditable="true" class="lang-en">Hinges secure, soft-close works</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab6"><span contenteditable="true" class="lang-zh">拉手端正牢固</span><span contenteditable="true" class="lang-en">Handles aligned & secure</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab4">
+        <span contenteditable="true" class="lang-zh">门缝均匀、开关顺畅</span>
+        <span contenteditable="true" class="lang-en">Door gaps even, open & close smoothly</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab5">
+        <span contenteditable="true" class="lang-zh">铰链牢固、缓冲有效</span>
+        <span contenteditable="true" class="lang-en">Hinges secure, soft-close working</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab6">
+        <span contenteditable="true" class="lang-zh">拉手端正牢固</span>
+        <span contenteditable="true" class="lang-en">Handles aligned & secure</span>
+    </div>
     <h3><span class="lang-zh">抽屉与层板</span><span class="lang-en">Drawers & Shelves</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="cab7"><span contenteditable="true" class="lang-zh">抽屉推拉顺滑、关闭齐平</span><span contenteditable="true" class="lang-en">Drawers slide smoothly</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab8"><span contenteditable="true" class="lang-zh">导轨牢固、承重正常</span><span contenteditable="true" class="lang-en">Rails secure, load OK</span></div>
-    <div class="checklist-row"><input type="checkbox" id="cab9"><span contenteditable="true" class="lang-zh">层板稳固、螺丝盖齐全</span><span contenteditable="true" class="lang-en">Shelves stable, caps installed</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab7">
+        <span contenteditable="true" class="lang-zh">抽屉推拉顺滑、关闭齐平</span>
+        <span contenteditable="true" class="lang-en">Drawers slide smoothly, flush when closed</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab8">
+        <span contenteditable="true" class="lang-zh">导轨牢固、承重正常</span>
+        <span contenteditable="true" class="lang-en">Slides firm, load bearing normal</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="cab9">
+        <span contenteditable="true" class="lang-zh">层板稳固、螺丝盖齐全</span>
+        <span contenteditable="true" class="lang-en">Shelves stable, all caps installed</span>
+    </div>
 </div>
 </div>
 
+<!-- === 页面3：吊顶水电 === -->
 <div class="page" id="p3">
 <div class="card">
     <h2><span class="lang-zh">吊顶与水电验收</span><span class="lang-en">Ceiling & MEP</span></h2>
-    <h3><span class="lang-zh">吊顶工程</span><span class="lang-en">Ceiling</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="mep1"><span contenteditable="true" class="lang-zh">龙骨牢固、间距合规</span><span contenteditable="true" class="lang-en">Frame secure, correct spacing</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep2"><span contenteditable="true" class="lang-zh">板面平整、无开裂</span><span contenteditable="true" class="lang-en">Panels flat, no cracks</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep3"><span contenteditable="true" class="lang-zh">开孔整齐、封边完好</span><span contenteditable="true" class="lang-en">Cutouts neat & edged</span></div>
+    <h3><span class="lang-zh">吊顶工程</span><span class="lang-en">Ceiling Works</span></h3>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep1">
+        <span contenteditable="true" class="lang-zh">龙骨牢固、间距合规</span>
+        <span contenteditable="true" class="lang-en">Frame secure, spacing within spec</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep2">
+        <span contenteditable="true" class="lang-zh">板面平整、无开裂</span>
+        <span contenteditable="true" class="lang-en">Panels flat, no cracks</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep3">
+        <span contenteditable="true" class="lang-zh">开孔整齐、封边完好</span>
+        <span contenteditable="true" class="lang-en">Openings neat, edging intact</span>
+    </div>
     <h3><span class="lang-zh">电气线路</span><span class="lang-en">Electrical</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="mep4"><span contenteditable="true" class="lang-zh">线路整齐、无裸露</span><span contenteditable="true" class="lang-en">Wiring neat, no exposed</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep5"><span contenteditable="true" class="lang-zh">开关插座通电正常</span><span contenteditable="true" class="lang-en">All switches & sockets working</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep6"><span contenteditable="true" class="lang-zh">灯具全亮、感应正常</span><span contenteditable="true" class="lang-en">All lights working</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep4">
+        <span contenteditable="true" class="lang-zh">线路整齐、无裸露</span>
+        <span contenteditable="true" class="lang-en">Wiring neat, no exposed parts</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep5">
+        <span contenteditable="true" class="lang-zh">开关插座通电正常</span>
+        <span contenteditable="true" class="lang-en">Switches & sockets working</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep6">
+        <span contenteditable="true" class="lang-zh">灯具全亮、感应正常</span>
+        <span contenteditable="true" class="lang-en">All lights & sensors working</span>
+    </div>
     <h3><span class="lang-zh">给排水</span><span class="lang-en">Plumbing</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="mep7"><span contenteditable="true" class="lang-zh">给水管无渗漏</span><span contenteditable="true" class="lang-en">No water leaks</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep8"><span contenteditable="true" class="lang-zh">排水通畅、无积水</span><span contenteditable="true" class="lang-en">Drainage clear, no pooling</span></div>
-    <div class="checklist-row"><input type="checkbox" id="mep9"><span contenteditable="true" class="lang-zh">管线避开柜体、密封完好</span><span contenteditable="true" class="lang-en">Pipes clear, openings sealed</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep7">
+        <span contenteditable="true" class="lang-zh">给水管无渗漏</span>
+        <span contenteditable="true" class="lang-en">Water pipes leak-free</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep8">
+        <span contenteditable="true" class="lang-zh">排水通畅、无积水</span>
+        <span contenteditable="true" class="lang-en">Drainage clear, no pooling</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="mep9">
+        <span contenteditable="true" class="lang-zh">管线避开柜体、密封完好</span>
+        <span contenteditable="true" class="lang-en">Pipes clear of cabinets, sealed properly</span>
+    </div>
 </div>
 </div>
 
+<!-- === 页面4：外观 === -->
 <div class="page" id="p4">
 <div class="card">
     <h2><span class="lang-zh">外观细节验收</span><span class="lang-en">Finishing Details</span></h2>
     <h3><span class="lang-zh">表面与饰面</span><span class="lang-en">Surfaces</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="fin1"><span contenteditable="true" class="lang-zh">颜色纹理与样板一致</span><span contenteditable="true" class="lang-en">Matches approved sample</span></div>
-    <div class="checklist-row"><input type="checkbox" id="fin2"><span contenteditable="true" class="lang-zh">无划痕、磕碰、污渍</span><span contenteditable="true" class="lang-en">No scratches, dents or stains</span></div>
-    <div class="checklist-row"><input type="checkbox" id="fin3"><span contenteditable="true" class="lang-zh">封边牢固、无脱胶崩边</span><span contenteditable="true" class="lang-en">Edging intact, no chipping</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin1">
+        <span contenteditable="true" class="lang-zh">颜色纹理与样板一致</span>
+        <span contenteditable="true" class="lang-en">Color & grain match sample</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin2">
+        <span contenteditable="true" class="lang-zh">无划痕、磕碰、污渍</span>
+        <span contenteditable="true" class="lang-en">Free from scratches, dents & stains</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin3">
+        <span contenteditable="true" class="lang-zh">封边牢固、无脱胶崩边</span>
+        <span contenteditable="true" class="lang-en">Edging intact, no peeling</span>
+    </div>
     <h3><span class="lang-zh">配件与清洁</span><span class="lang-en">Fittings & Cleanup</span></h3>
-    <div class="checklist-row"><input type="checkbox" id="fin4"><span contenteditable="true" class="lang-zh">五金配件功能正常</span><span contenteditable="true" class="lang-en">All fittings working</span></div>
-    <div class="checklist-row"><input type="checkbox" id="fin5"><span contenteditable="true" class="lang-zh">灯带/感应灯正常</span><span contenteditable="true" class="lang-en">LED lights & sensors OK</span></div>
-    <div class="checklist-row"><input type="checkbox" id="fin6"><span contenteditable="true" class="lang-zh">现场清洁、保护膜已除</span><span contenteditable="true" class="lang-en">Site cleaned, film removed</span></div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin4">
+        <span contenteditable="true" class="lang-zh">五金配件功能正常</span>
+        <span contenteditable="true" class="lang-en">All hardware functioning</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin5">
+        <span contenteditable="true" class="lang-zh">灯带/感应灯正常</span>
+        <span contenteditable="true" class="lang-en">LED & sensor lights working</span>
+    </div>
+    <div class="checklist-row">
+        <input type="checkbox" id="fin6">
+        <span contenteditable="true" class="lang-zh">现场清洁、保护膜已除</span>
+        <span contenteditable="true" class="lang-en">Site clean, film removed</span>
+    </div>
     <h3><span class="lang-zh">质保说明</span><span class="lang-en">Warranty</span></h3>
     <div class="warranty-line">
-        <span class="lang-zh">质保内容</span><span class="lang-en">Warranty Details</span>：
+        <span><span class="lang-zh">质保内容</span><span class="lang-en">Coverage</span>：</span>
         <input type="text" id="warranty_content">
     </div>
-    <div class="warranty-line" style="margin-top:5px;">
-        <span class="lang-zh">质保期限</span><span class="lang-en">Warranty Period</span>：
+    <div class="warranty-line">
+        <span><span class="lang-zh">质保期限</span><span class="lang-en">Period</span>：</span>
         <input type="text" id="warranty_period">
     </div>
 </div>
 </div>
 
+<!-- === 页面5：整改 === -->
 <div class="page" id="p5">
 <div class="card">
     <h2><span class="lang-zh">问题整改记录</span><span class="lang-en">Snag List</span></h2>
     <div id="snagContainer"></div>
-    <button class="btn-blue" onclick="addSnag()">➕ <span class="lang-zh">添加整改项</span><span class="lang-en">Add Item</span></button>
+    <button class="btn-blue" id="btnAddSnag">➕ <span class="lang-zh">添加整改项</span><span class="lang-en">Add Item</span></button>
 </div>
 </div>
 
+<!-- === 页面6：签署 === -->
 <div class="page" id="p6">
 <div class="card">
     <h2 style="text-align:center;"><span class="lang-zh">交付确认</span><span class="lang-en">Handover Confirmation</span></h2>
-    <p style="margin:10px 0; line-height:1.8;">
-        <span class="lang-zh">本项目按合同及图纸施工完成，经双方验收合格，即日起交付使用。质保条款已当面说明。</span>
-        <span class="lang-en">Works completed and inspected. Handover effective today. Warranty explained.</span>
+    <p style="margin:15px 0; line-height:1.8; text-align:center;">
+        <span class="lang-zh">本项目按合同及图纸施工完成，验收合格，即日起交付使用。质保条款已当面说明。</span>
+        <span class="lang-en">Works completed & inspected. Handover effective today. Warranty explained.</span>
     </p>
-    <div class="grid-row" style="margin-top:20px;">
+    <div class="grid-row">
         <div class="grid-col">
             <label><span class="lang-zh">客户签署</span><span class="lang-en">Client Signature</span></label>
             <input type="text" id="clientSign">
@@ -248,438 +361,298 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
             <input type="text" id="contractorSign">
         </div>
     </div>
-    <div style="margin-top:15px;">
+    <div style="margin-top:10px;">
         <label><span class="lang-zh">备注</span><span class="lang-en">Remarks</span></label>
         <textarea id="remarks" rows="3"></textarea>
     </div>
-    <p style="margin-top:20px; text-align:center; font-weight:bold; color:#234e9e;">
-        <span class="lang-zh">质保内容：</span><span class="lang-en">Warranty Details: </span>
-        <span id="warranty_footer_content"></span><br>
-        <span class="lang-zh">质保期限：</span><span class="lang-en">Warranty Period: </span>
-        <span id="warranty_footer_period"></span>
+    <p style="margin-top:20px; text-align:center; font-weight:bold;">
+        <span class="lang-zh">质保：</span><span class="lang-en">Warranty: </span>
+        <span id="wtxt"></span>
     </p>
 </div>
 </div>
 
 <script>
-let useEnglish = false;
-let darkMode = false;
-let snags = [];
-let snagId = 0;
+let useEnglish = false, darkMode = false, snags = [], snagId = 0;
 
-function goTab(pageId) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    document.getElementById(pageId).classList.add('active');
-}
+// === 标签页切换 — 最简单稳定写法 ===
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+    };
+});
 
-function toggleLang() {
+// 语言
+document.getElementById('btnLang').onclick = () => {
     useEnglish = !useEnglish;
     document.body.classList.toggle('use-en', useEnglish);
-    saveStatus(useEnglish ? 'English' : '中文');
-}
+    setStatus(useEnglish ? 'English' : '中文');
+};
 
-function toggleDark() {
+// 暗黑
+document.getElementById('btnDark').onclick = () => {
     darkMode = !darkMode;
     document.body.classList.toggle('dark', darkMode);
-    saveStatus(darkMode ? '🌙 暗黑' : '☀️ 明亮');
+    setStatus(darkMode ? '暗黑模式' : '明亮模式');
+};
+
+function setStatus(t) {
+    document.getElementById('status').textContent = t;
+    setTimeout(()=>document.getElementById('status').textContent='就绪', 2500);
+}
+function autoSave() {
+    document.getElementById('wtxt').textContent = 
+        (document.getElementById('warranty_content').value||'') + ' / ' +
+        (document.getElementById('warranty_period').value||'');
+    try { localStorage.setItem('HD', JSON.stringify(gather())); } catch(e) {}
 }
 
-function addSnag() {
-    snagId++;
-    snags.push({ id: snagId, priority: '🔴', location: '', issue: '', due: '', status: '🔴 待处理 / Pending', photos: [] });
-    renderSnags();
+// === 收集数据 ===
+function gather() {
+    const gchk = id => ({
+        chk: document.getElementById(id).checked,
+        zh: document.querySelector(`#${id}+span.lang-zh`).textContent.trim(),
+        en: document.querySelector(`#${id}+span.lang-en`).textContent.trim()
+    });
+    return {
+        L: useEnglish ? 'en' : 'zh',
+        D: darkMode,
+        info: {
+            n: document.getElementById('custName').value,
+            p: document.getElementById('custPhone').value,
+            a: document.getElementById('siteAddr').value,
+            o: document.getElementById('orderID').value,
+            s: document.getElementById('salesPerson').value,
+            m: document.getElementById('siteManager').value
+        },
+        sched: {
+            m: {d:document.getElementById('date_measure').value, v:document.getElementById('status_measure').value},
+            p: {d:document.getElementById('date_produce').value, v:document.getElementById('status_produce').value},
+            d: {d:document.getElementById('date_delivery').value, v:document.getElementById('status_delivery').value},
+            i: {d:document.getElementById('date_install').value, v:document.getElementById('status_install').value},
+            h: {d:document.getElementById('date_handover').value, v:document.getElementById('status_handover').value}
+        },
+        cab: ['cab1','cab2','cab3','cab4','cab5','cab6','cab7','cab8','cab9'].map(gchk),
+        mep: ['mep1','mep2','mep3','mep4','mep5','mep6','mep7','mep8','mep9'].map(gchk),
+        fin: ['fin1','fin2','fin3','fin4','fin5','fin6'].map(gchk),
+        war: {c:document.getElementById('warranty_content').value, p:document.getElementById('warranty_period').value},
+        snags: snags,
+        sign: {c:document.getElementById('clientSign').value, b:document.getElementById('contractorSign').value, r:document.getElementById('remarks').value}
+    };
 }
 
+// === 恢复数据 ===
+function restore(d) {
+    if(!d)return;
+    useEnglish = d.L==='en'; document.body.classList.toggle('use-en', useEnglish);
+    darkMode = !!d.D; document.body.classList.toggle('dark', darkMode);
+    if(d.info) {
+        document.getElementById('custName').value=d.info.n||'';
+        document.getElementById('custPhone').value=d.info.p||'';
+        document.getElementById('siteAddr').value=d.info.a||'';
+        document.getElementById('orderID').value=d.info.o||'';
+        document.getElementById('salesPerson').value=d.info.s||'';
+        document.getElementById('siteManager').value=d.info.m||'';
+    }
+    if(d.sched) {
+        if(d.sched.m){document.getElementById('date_measure').value=d.sched.m.d||'';document.getElementById('status_measure').value=d.sched.m.v||'';}
+        if(d.sched.p){document.getElementById('date_produce').value=d.sched.p.d||'';document.getElementById('status_produce').value=d.sched.p.v||'';}
+        if(d.sched.d){document.getElementById('date_delivery').value=d.sched.d.d||'';document.getElementById('status_delivery').value=d.sched.d.v||'';}
+        if(d.sched.i){document.getElementById('date_install').value=d.sched.i.d||'';document.getElementById('status_install').value=d.sched.i.v||'';}
+        if(d.sched.h){document.getElementById('date_handover').value=d.sched.h.d||'';document.getElementById('status_handover').value=d.sched.h.v||'';}
+    }
+    const rchk = (ids, arr) => ids.forEach((id,i)=>{
+        if(!arr||!arr[i])return;
+        const el=document.getElementById(id); if(el)el.checked=!!arr[i].chk;
+        const spz=document.querySelector(`#${id}+span.lang-zh`); if(spz&&arr[i].zh)spz.textContent=arr[i].zh;
+        const spe=document.querySelector(`#${id}+span.lang-en`); if(spe&&arr[i].en)spe.textContent=arr[i].en;
+    });
+    rchk(['cab1','cab2','cab3','cab4','cab5','cab6','cab7','cab8','cab9'], d.cab);
+    rchk(['mep1','mep2','mep3','mep4','mep5','mep6','mep7','mep8','mep9'], d.mep);
+    rchk(['fin1','fin2','fin3','fin4','fin5','fin6'], d.fin);
+    if(d.war){document.getElementById('warranty_content').value=d.war.c||'';document.getElementById('warranty_period').value=d.war.p||'';}
+    snags = d.snags||[]; snagId = snags.length?Math.max(...snags.map(x=>x.id)):0; renderSnags();
+    if(d.sign){document.getElementById('clientSign').value=d.sign.c||'';document.getElementById('contractorSign').value=d.sign.b||'';document.getElementById('remarks').value=d.sign.r||'';}
+    autoSave();
+}
+
+// === 整改项 ===
 function renderSnags() {
-    const container = document.getElementById('snagContainer');
-    container.innerHTML = '';
-    snags.forEach((item, idx) => {
-        const html = `
-        <div class="snag-row" data-id="${item.id}">
+    const c=document.getElementById('snagContainer'); c.innerHTML='';
+    snags.forEach((it,idx)=>{
+        const div=document.createElement('div'); div.className='snag-row'; div.innerHTML=`
             <strong>#${idx+1}</strong>
-            <select onchange="updateSnag(${item.id}, 'priority', this.value)" style="width:auto;">
-                <option value="🔴" ${item.priority==='🔴'?'selected':''}>🔴</option>
-                <option value="🟡" ${item.priority==='🟡'?'selected':''}>🟡</option>
-                <option value="🟢" ${item.priority==='🟢'?'selected':''}>🟢</option>
+            <select class="sprio" data-i="${it.id}" style="width:auto;margin:0 4px;">
+                <option value="🔴"${it.p==='🔴'?'selected':''}>🔴</option>
+                <option value="🟡"${it.p==='🟡'?'selected':''}>🟡</option>
+                <option value="🟢"${it.p==='🟢'?'selected':''}>🟢</option>
             </select>
-            <input type="date" value="${item.due}" onchange="updateSnag(${item.id}, 'due', this.value)" style="width:auto;">
-            <select onchange="updateSnag(${item.id}, 'status', this.value)" style="width:auto;">
-                <option ${item.status==='🔴 待处理 / Pending'?'selected':''}>🔴 待处理 / Pending</option>
-                <option ${item.status==='🟡 未开始 / Not Started'?'selected':''}>🟡 未开始 / Not Started</option>
-                <option ${item.status==='🟢 处理中 / In Progress'?'selected':''}>🟢 处理中 / In Progress</option>
-                <option ${item.status==='⏸️ 暂缓 / On Hold'?'selected':''}>⏸️ 暂缓 / On Hold</option>
-                <option ${item.status==='✅ 已完成 / Completed'?'selected':''}>✅ 已完成 / Completed</option>
-                <option ${item.status==='✔️ 已关闭 / Closed'?'selected':''}>✔️ 已关闭 / Closed</option>
+            <input type="date" class="sdate" data-i="${it.id}" value="${it.d||''}" style="width:auto;margin:0 4px;">
+            <select class="sstat" data-i="${it.id}" style="width:auto;margin:0 4px;">
+                <option${it.s==='🔴 待处理 / Pending'?'selected':''}>🔴 待处理 / Pending</option>
+                <option${it.s==='🟡 未开始 / Not Started'?'selected':''}>🟡 未开始 / Not Started</option>
+                <option${it.s==='🟢 处理中 / In Progress'?'selected':''}>🟢 处理中 / In Progress</option>
+                <option${it.s==='⏸️ 暂缓 / On Hold'?'selected':''}>⏸️ 暂缓 / On Hold</option>
+                <option${it.s==='✅ 已完成 / Completed'?'selected':''}>✅ 已完成 / Completed</option>
+                <option${it.s==='✔️ 已关闭 / Closed'?'selected':''}>✔️ 已关闭 / Closed</option>
             </select>
-            <div>
-                <label>${useEnglish?'Location':'位置'}</label>
-                <input type="text" value="${item.location}" oninput="updateSnag(${item.id}, 'location', this.value)">
-            </div>
-            <div>
-                <label>${useEnglish?'Issue':'问题描述'}</label>
-                <textarea rows="2" oninput="updateSnag(${item.id}, 'issue', this.value)">${item.issue}</textarea>
-            </div>
+            <div><label>${useEnglish?'Location':'位置'}</label><input type="text" class="sloc" data-i="${it.id}" value="${it.l||''}"></div>
+            <div><label>${useEnglish?'Issue':'问题描述'}</label><textarea class="sdesc" data-i="${it.id}" rows="2">${it.x||''}</textarea></div>
             <div class="photo-area">
                 <p>📷 ${useEnglish?'Photos':'照片'}</p>
-                <span class="photo-btn" onclick="document.getElementById('file-${item.id}').click()">+ ${useEnglish?'Add Photo':'添加照片'}</span>
-                <input type="file" id="file-${item.id}" accept="image/*" multiple style="display:none;" onchange="addPhoto(${item.id}, this)">
-                <div class="photo-preview" id="photos-${item.id}">
-                    ${item.photos.map(p => `<div><img src="${p}"><button class="del-btn" onclick="delPhoto(${item.id}, ${item.photos.indexOf(p)})">×</button></div>`).join('')}
-                </div>
+                <span class="photo-btn" data-f="sf-${it.id}">+ ${useEnglish?'Add Photo':'添加照片'}</span>
+                <input type="file" id="sf-${it.id}" accept="image/*" multiple style="display:none;">
+                <div class="photo-preview">${(it.ph||[]).map((p,pi)=>`<div style="position:relative;"><img src="${p}"><button class="delpho" data-s="${it.id}" data-p="${pi}">×</button></div>`).join('')}</div>
             </div>
-            <button class="del-btn" onclick="delSnag(${item.id})">🗑️ ${useEnglish?'Delete':'删除'}</button>
-        </div>`;
-        container.insertAdjacentHTML('beforeend', html);
+            <button class="del-btn delsnag" data-i="${it.id}">🗑️ ${useEnglish?'Delete':'删除'}</button>
+        `; c.appendChild(div);
     });
+    bindSnagEvents();
 }
-
-function updateSnag(id, field, value) {
-    const item = snags.find(s => s.id === id);
-    if (item) { item[field] = value; autoSave(); }
+function bindSnagEvents() {
+    document.querySelectorAll('.sprio').forEach(el=>{el.onchange=()=>{const x=snags.find(s=>s.id==el.dataset.i);if(x)x.p=el.value;autoSave();};});
+    document.querySelectorAll('.sdate').forEach(el=>{el.onchange=()=>{const x=snags.find(s=>s.id==el.dataset.i);if(x)x.d=el.value;autoSave();};});
+    document.querySelectorAll('.sstat').forEach(el=>{el.onchange=()=>{const x=snags.find(s=>s.id==el.dataset.i);if(x)x.s=el.value;autoSave();};});
+    document.querySelectorAll('.sloc').forEach(el=>{el.oninput=()=>{const x=snags.find(s=>s.id==el.dataset.i);if(x)x.l=el.value;autoSave();};});
+    document.querySelectorAll('.sdesc').forEach(el=>{el.oninput=()=>{const x=snags.find(s=>s.id==el.dataset.i);if(x)x.x=el.value;autoSave();};});
+    document.querySelectorAll('.photo-btn').forEach(b=>{b.onclick=()=>document.getElementById(b.dataset.f).click();});
+    document.querySelectorAll('input[id^="sf-"]').forEach(inp=>{inp.onchange=()=>{
+        const id=parseInt(inp.id.replace('sf-','')); const it=snags.find(s=>s.id===id);
+        if(!it||!inp.files.length)return;
+        Array.from(inp.files).forEach(f=>{if(!f.type.startsWith('image/'))return;const r=new FileReader();r.onload=e=>{it.ph=it.ph||[];it.ph.push(e.target.result);renderSnags();autoSave();};r.readAsDataURL(f);});
+    };});
+    document.querySelectorAll('.delpho').forEach(b=>{b.onclick=()=>{const s=snags.find(x=>x.id==b.dataset.s);if(s&&s.ph)s.ph.splice(b.dataset.p,1);renderSnags();autoSave();};});
+    document.querySelectorAll('.delsnag').forEach(b=>{b.onclick=()=>{if(confirm(useEnglish?'Delete?':'确定删除？')){snags=snags.filter(x=>x.id!=b.dataset.i);renderSnags();autoSave();}};});
 }
+document.getElementById('btnAddSnag').onclick=()=>{snagId++;snags.push({id:snagId,p:'🔴',d:'',s:'🔴 待处理 / Pending',l:'',x:'',ph:[]});renderSnags();autoSave();};
 
-function delSnag(id) {
-    if (confirm(useEnglish ? 'Delete this item?' : '确定删除？')) {
-        snags = snags.filter(s => s.id !== id);
-        renderSnags();
-        autoSave();
-    }
-}
-
-function addPhoto(id, input) {
-    const files = input.files;
-    const item = snags.find(s => s.id === id);
-    if (!item) return;
-    for (let i = 0; i < files.length; i++) {
-        if (!files[i].type.startsWith('image/')) continue;
-        const reader = new FileReader();
-        reader.onload = e => {
-            item.photos.push(e.target.result);
-            renderSnags();
-            autoSave();
-        };
-        reader.readAsDataURL(files[i]);
-    }
-    input.value = '';
-}
-
-function delPhoto(id, idx) {
-    const item = snags.find(s => s.id === id);
-    if (item) {
-        item.photos.splice(idx, 1);
-        renderSnags();
-        autoSave();
-    }
-}
-
-function updateWarrantyFooter() {
-    document.getElementById('warranty_footer_content').textContent = document.getElementById('warranty_content').value;
-    document.getElementById('warranty_footer_period').textContent = document.getElementById('warranty_period').value;
-}
-
-function collectChecklist() {
-    const getCheckText = (id) => {
-        const el = document.querySelector(`#${id} + span.lang-zh`);
-        const elEn = document.querySelector(`#${id} + span.lang-en`);
-        const checkbox = document.getElementById(id);
-        const text = useEnglish ? (elEn?.textContent || el?.textContent || '') : (el?.textContent || elEn?.textContent || '');
-        return { checked: checkbox?.checked || false, text };
-    };
-    return {
-        cabinet: [
-            getCheckText('cab1'), getCheckText('cab2'), getCheckText('cab3'),
-            getCheckText('cab4'), getCheckText('cab5'), getCheckText('cab6'),
-            getCheckText('cab7'), getCheckText('cab8'), getCheckText('cab9')
-        ],
-        mep: [
-            getCheckText('mep1'), getCheckText('mep2'), getCheckText('mep3'),
-            getCheckText('mep4'), getCheckText('mep5'), getCheckText('mep6'),
-            getCheckText('mep7'), getCheckText('mep8'), getCheckText('mep9')
-        ],
-        finishing: [
-            getCheckText('fin1'), getCheckText('fin2'), getCheckText('fin3'),
-            getCheckText('fin4'), getCheckText('fin5'), getCheckText('fin6')
-        ]
-    };
-}
-
-function collectData() {
-    return {
-        lang: useEnglish ? 'en' : 'zh',
-        dark: darkMode,
-        customer: {
-            name: document.getElementById('custName').value,
-            phone: document.getElementById('custPhone').value,
-            address: document.getElementById('siteAddr').value,
-            orderID: document.getElementById('orderID').value
-        },
-        schedule: {
-            measure: { date: document.getElementById('date_measure').value, status: document.getElementById('status_measure').value },
-            produce: { date: document.getElementById('date_produce').value, status: document.getElementById('status_produce').value },
-            delivery: { date: document.getElementById('date_delivery').value, status: document.getElementById('status_delivery').value },
-            install: { date: document.getElementById('date_install').value, status: document.getElementById('status_install').value },
-            handover: { date: document.getElementById('date_handover').value, status: document.getElementById('status_handover').value }
-        },
-        checklist: collectChecklist(),
-        warranty: {
-            content: document.getElementById('warranty_content').value,
-            period: document.getElementById('warranty_period').value
-        },
-        snags: snags,
-        signature: {
-            client: document.getElementById('clientSign').value,
-            contractor: document.getElementById('contractorSign').value,
-            remarks: document.getElementById('remarks').value
-        },
-        savedAt: new Date().toLocaleString('zh-MY')
-    };
-}
-
-function autoSave() {
-    updateWarrantyFooter();
-    try { localStorage.setItem('HANDOVER_DATA', JSON.stringify(collectData())); } catch(e) {}
-}
-
-function saveStatus(text) {
-    document.getElementById('status').textContent = text;
-    setTimeout(() => { document.getElementById('status').textContent = '就绪'; }, 2000);
-}
-
-function saveAll() {
-    const data = collectData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `交付确认书_${data.customer.name||'项目'}.json`;
-    a.click();
-    saveStatus('已保存 ✓');
-}
-
-function loadAll() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-            try {
-                const d = JSON.parse(ev.target.result);
-                applyData(d);
-                saveStatus('读取成功 ✓');
-            } catch {
-                alert(useEnglish ? 'File error' : '文件错误');
-            }
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-}
-
-function applyData(d) {
-    if (!d) return;
-    useEnglish = d.lang === 'en';
-    document.body.classList.toggle('use-en', useEnglish);
-    darkMode = d.dark || false;
-    document.body.classList.toggle('dark', darkMode);
-    
-    if (d.customer) {
-        document.getElementById('custName').value = d.customer.name || '';
-        document.getElementById('custPhone').value = d.customer.phone || '';
-        document.getElementById('siteAddr').value = d.customer.address || '';
-        document.getElementById('orderID').value = d.customer.orderID || '';
-    }
-    if (d.schedule) {
-        document.getElementById('date_measure').value = d.schedule.measure?.date || '';
-        document.getElementById('status_measure').value = d.schedule.measure?.status || '🔴 待处理 / Pending';
-        document.getElementById('date_produce').value = d.schedule.produce?.date || '';
-        document.getElementById('status_produce').value = d.schedule.produce?.status || '🔴 待处理 / Pending';
-        document.getElementById('date_delivery').value = d.schedule.delivery?.date || '';
-        document.getElementById('status_delivery').value = d.schedule.delivery?.status || '🔴 待处理 / Pending';
-        document.getElementById('date_install').value = d.schedule.install?.date || '';
-        document.getElementById('status_install').value = d.schedule.install?.status || '🔴 待处理 / Pending';
-        document.getElementById('date_handover').value = d.schedule.handover?.date || '';
-        document.getElementById('status_handover').value = d.schedule.handover?.status || '🔴 待处理 / Pending';
-    }
-    if (d.warranty) {
-        document.getElementById('warranty_content').value = d.warranty.content || '';
-        document.getElementById('warranty_period').value = d.warranty.period || '';
-        updateWarrantyFooter();
-    }
-    snags = d.snags || [];
-    snagId = snags.length;
-    renderSnags();
-    if (d.signature) {
-        document.getElementById('clientSign').value = d.signature.client || '';
-        document.getElementById('contractorSign').value = d.signature.contractor || '';
-        document.getElementById('remarks').value = d.signature.remarks || '';
-    }
-}
-
-function exportExcel() {
-    const d = collectData();
-    const lang = useEnglish;
-    const rows = [];
-    
-    rows.push([lang ? 'Client Name' : '客户姓名', d.customer.name]);
-    rows.push([lang ? 'Phone' : '电话', d.customer.phone]);
-    rows.push([lang ? 'Address' : '地址', d.customer.address]);
-    rows.push([lang ? 'Order No.' : '订单号', d.customer.orderID]);
-    rows.push([]);
-    
-    rows.push([lang ? 'Project Schedule' : '项目进度']);
-    rows.push([lang ? 'Item' : '项目', lang ? 'Date' : '日期', lang ? 'Status' : '状态']);
-    rows.push([lang ? 'Re-measurement' : '复尺确认', d.schedule.measure.date, d.schedule.measure.status]);
-    rows.push([lang ? 'Production' : '生产备货', d.schedule.produce.date, d.schedule.produce.status]);
-    rows.push([lang ? 'Delivery' : '送货到场', d.schedule.delivery.date, d.schedule.delivery.status]);
-    rows.push([lang ? 'Installation' : '安装完成', d.schedule.install.date, d.schedule.install.status]);
-    rows.push([lang ? 'Handover' : '验收交付', d.schedule.handover.date, d.schedule.handover.status]);
-    rows.push([]);
-    
-    rows.push([lang ? 'Cabinet Inspection' : '柜体安装验收']);
-    d.checklist.cabinet.forEach(item => rows.push([item.checked ? '☑' : '☐', item.text]));
-    rows.push([]);
-    
-    rows.push([lang ? 'Ceiling & MEP Inspection' : '吊顶与水电验收']);
-    d.checklist.mep.forEach(item => rows.push([item.checked ? '☑' : '☐', item.text]));
-    rows.push([]);
-    
-    rows.push([lang ? 'Finishing Details Inspection' : '外观细节验收']);
-    d.checklist.finishing.forEach(item => rows.push([item.checked ? '☑' : '☐', item.text]));
-    rows.push([]);
-    
-    rows.push([lang ? 'Warranty' : '质保说明']);
-    rows.push([lang ? 'Details' : '质保内容', d.warranty.content]);
-    rows.push([lang ? 'Period' : '质保期限', d.warranty.period]);
-    rows.push([]);
-    
-    rows.push([lang ? 'Snag List' : '整改记录']);
-    rows.push([lang ? 'Priority' : '优先级', lang ? 'Location' : '位置', lang ? 'Issue' : '问题描述', lang ? 'Due Date' : '完成日期', lang ? 'Status' : '状态']);
-    d.snags.length === 0 ? rows.push([lang ? 'No records' : '暂无记录', '', '', '', '']) :
-        d.snags.forEach(s => rows.push([s.priority, s.location, s.issue, s.due, s.status]));
-    rows.push([]);
-    
-    rows.push([lang ? 'Client Signature' : '客户签署', d.signature.client]);
-    rows.push([lang ? 'Contractor Signature' : '施工方签署', d.signature.contractor]);
-    rows.push([lang ? 'Remarks' : '备注', d.signature.remarks]);
-    
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 6 }, { wch: 50 }, { wch: 15 }, { wch: 30 }];
-    XLSX.utils.book_append_sheet(wb, ws, lang ? 'Handover' : '交付确认书');
-    XLSX.writeFile(wb, `交付确认书_${d.customer.name || '项目'}.xlsx`);
-    saveStatus('Excel已导出 ✓');
-}
-
-function exportPDF() {
-    saveStatus('生成PDF中...');
-    const d = collectData();
-    const lang = useEnglish;
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <title>${lang ? 'Handover Form' : '交付确认书'}</title>
-    <style>
-    body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; padding: 30px; line-height: 1.8; color: #000; font-size: 14px; }
-    h1 { text-align: center; margin-bottom: 25px; font-size: 22px; border-bottom: 2px solid #234e9e; padding-bottom: 10px; }
-    h3 { margin: 20px 0 10px; font-size: 16px; color: #234e9e; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-    table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-    td, th { padding: 8px 10px; border: 1px solid #ccc; vertical-align: top; }
-    th { background: #f0f4f8; font-weight: bold; text-align: left; }
-    .noborder td { border: none; padding: 6px 2px; }
-    .check-col { width: 30px; text-align: center; font-weight: bold; }
-    .sign-row { margin-top: 30px; display: flex; justify-content: space-between; }
-    .sign-col { width: 45%; }
-    .page-break { page-break-after: always; }
-    </style>
-    </head>
-    <body>
-    <h1>${lang ? 'Handover Form' : '交付确认书'}</h1>
-    
-    <h3>${lang ? 'Project Information' : '项目信息'}</h3>
-    <table class="noborder">
-        <tr><td style="width:140px; font-weight:bold;">${lang ? 'Client Name' : '客户姓名'}</td><td>${d.customer.name || ''}</td></tr>
-        <tr><td style="font-weight:bold;">${lang ? 'Phone' : '电话'}</td><td>${d.customer.phone || ''}</td></tr>
-        <tr><td style="font-weight:bold;">${lang ? 'Address' : '地址'}</td><td>${d.customer.address || ''}</td></tr>
-        <tr><td style="font-weight:bold;">${lang ? 'Order No.' : '订单号'}</td><td>${d.customer.orderID || ''}</td></tr>
-    </table>
-    
-    <h3>${lang ? 'Project Schedule' : '项目进度'}</h3>
-    <table>
-        <tr><th>${lang ? 'Item' : '项目'}</th><th style="width:130px;">${lang ? 'Date' : '日期'}</th><th>${lang ? 'Status' : '状态'}</th></tr>
-        <tr><td>${lang ? 'Re-measurement' : '复尺确认'}</td><td>${d.schedule.measure.date || '-'}</td><td>${d.schedule.measure.status}</td></tr>
-        <tr><td>${lang ? 'Production' : '生产备货'}</td><td>${d.schedule.produce.date || '-'}</td><td>${d.schedule.produce.status}</td></tr>
-        <tr><td>${lang ? 'Delivery' : '送货到场'}</td><td>${d.schedule.delivery.date || '-'}</td><td>${d.schedule.delivery.status}</td></tr>
-        <tr><td>${lang ? 'Installation' : '安装完成'}</td><td>${d.schedule.install.date || '-'}</td><td>${d.schedule.install.status}</td></tr>
-        <tr><td>${lang ? 'Handover' : '验收交付'}</td><td>${d.schedule.handover.date || '-'}</td><td>${d.schedule.handover.status}</td></tr>
-    </table>
-    
-    <div class="page-break"></div>
-    
-    <h3>${lang ? 'Cabinet Inspection' : '柜体安装验收'}</h3>
-    <table>
-        <tr><th class="check-col">✓</th><th>${lang ? 'Inspection Item' : '验收项目'}</th></tr>
-        ${d.checklist.cabinet.map(item => `<tr><td class="check-col">${item.checked ? '☑' : '☐'}</td><td>${item.text}</td></tr>`).join('')}
-    </table>
-    
-    <h3>${lang ? 'Ceiling & MEP Inspection' : '吊顶与水电验收'}</h3>
-    <table>
-        <tr><th class="check-col">✓</th><th>${lang ? 'Inspection Item' : '验收项目'}</th></tr>
-        ${d.checklist.mep.map(item => `<tr><td class="check-col">${item.checked ? '☑' : '☐'}</td><td>${item.text}</td></tr>`).join('')}
-    </table>
-    
-    <h3>${lang ? 'Finishing Details Inspection' : '外观细节验收'}</h3>
-    <table>
-        <tr><th class="check-col">✓</th><th>${lang ? 'Inspection Item' : '验收项目'}</th></tr>
-        ${d.checklist.finishing.map(item => `<tr><td class="check-col">${item.checked ? '☑' : '☐'}</td><td>${item.text}</td></tr>`).join('')}
-    </table>
-    
-    <div class="page-break"></div>
-    
-    <h3>${lang ? 'Warranty' : '质保说明'}</h3>
-    <table class="noborder">
-        <tr><td style="width:140px; font-weight:bold;">${lang ? 'Details' : '质保内容'}</td><td>${d.warranty.content || '-'}</td></tr>
-        <tr><td style="font-weight:bold;">${lang ? 'Period' : '质保期限'}</td><td>${d.warranty.period || '-'}</td></tr>
-    </table>
-    
-    <h3>${lang ? 'Snag List' : '整改记录'}</h3>
-    ${d.snags.length > 0 ? `
-    <table>
-        <tr><th style="width:5%;">#</th><th style="width:8%;">${lang ? 'Priority' : '优先级'}</th><th style="width:15%;">${lang ? 'Location' : '位置'}</th><th>${lang ? 'Issue' : '问题描述'}</th><th style="width:13%;">${lang ? 'Due Date' : '完成日期'}</th><th style="width:18%;">${lang ? 'Status' : '状态'}</th></tr>
-        ${d.snags.map((s, i) => `<tr><td>${i+1}</td><td>${s.priority}</td><td>${s.location || '-'}</td><td>${s.issue || '-'}</td><td>${s.due || '-'}</td><td>${s.status}</td></tr>`).join('')}
-    </table>` : `<p>${lang ? 'No records' : '暂无记录'}</p>`}
-    
-    <h3>${lang ? 'Signatures' : '签署确认'}</h3>
-    <p>${lang ? 'Works completed and inspected. Handover effective today. Warranty terms explained.' : '本项目按合同及图纸施工完成，经双方验收合格，即日起交付使用。质保条款已当面说明。'}</p>
-    
-    <div class="sign-row">
-        <div class="sign-col"><p><strong>${lang ? 'Client Signature' : '客户签署'}</strong></p><p style="border-bottom:1px solid #999; padding:10px 0; min-height:40px;">${d.signature.client || ''}</p></div>
-        <div class="sign-col"><p><strong>${lang ? 'Contractor Signature' : '施工方签署'}</strong></p><p style="border-bottom:1px solid #999; padding:10px 0; min-height:40px;">${d.signature.contractor || ''}</p></div>
-    </div>
-    <p style="margin-top:20px;"><strong>${lang ? 'Remarks' : '备注'}：</strong>${d.signature.remarks || ''}</p>
-    <p style="margin-top:30px; text-align:center; color:#666; font-size:12px;">${lang ? 'Generated on' : '生成时间'}: ${new Date().toLocaleString('zh-MY')}</p>
-    </body>
-    </html>
-    `);
-    printWindow.document.close();
-    saveStatus('PDF已生成 ✓');
+// === 保存/读取 ===
+document.getElementById('btnSave').onclick=()=>{
+    const d=gather(); const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`交付确认书_${d.info.n||'项目'}.json`;a.click();setStatus('已保存 ✓');
+};
+document.getElementById('btnLoad').onclick=()=>{
+    const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{
+        const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{restore(JSON.parse(ev.target.result));setStatus('已读取 ✓');}catch{alert(useEnglish?'Read failed':'读取失败');}};r.readAsText(f);
+    };i.click();
 };
 
-document.addEventListener('change', autoSave);
+// === Excel ===
+document.getElementById('btnExcel').onclick=()=>{
+    const d=gather(); const L=useEnglish;
+    const rows=[];
+    rows.push([L?'Client Name':'客户姓名',d.info.n]);
+    rows.push([L?'Phone':'电话',d.info.p]);
+    rows.push([L?'Address':'地址',d.info.a]);
+    rows.push([L?'Order No.':'订单号',d.info.o]);
+    rows.push([L?'Salesperson':'销售人员',d.info.s]);
+    rows.push([L?'Site Manager':'现场主管',d.info.m]);
+    rows.push([]);
+    rows.push([L?'Schedule':'项目进度']);
+    rows.push([L?'Item':'项目',L?'Date':'日期',L?'Status':'状态']);
+    rows.push([L?'Re-measurement':'复尺确认',d.sched.m.d,d.sched.m.v]);
+    rows.push([L?'Production':'生产备货',d.sched.p.d,d.sched.p.v]);
+    rows.push([L?'Delivery':'送货到场',d.sched.d.d,d.sched.d.v]);
+    rows.push([L?'Installation':'安装完成',d.sched.i.d,d.sched.i.v]);
+    rows.push([L?'Handover':'验收交付',d.sched.h.d,d.sched.h.v]);
+    rows.push([]);
+    rows.push([L?'Cabinet Inspection':'柜体验收']);
+    d.cab.forEach(x=>rows.push([x.chk?'☑':'☐',L?x.en:x.zh]));
+    rows.push([]);
+    rows.push([L?'Ceiling & MEP':'吊顶水电']);
+    d.mep.forEach(x=>rows.push([x.chk?'☑':'☐',L?x.en:x.zh]));
+    rows.push([]);
+    rows.push([L?'Finishing':'外观细节']);
+    d.fin.forEach(x=>rows.push([x.chk?'☑':'☐',L?x.en:x.zh]));
+    rows.push([]);
+    rows.push([L?'Warranty':'质保']);
+    rows.push([L?'Coverage':'内容',d.war.c]);
+    rows.push([L?'Period':'期限',d.war.p]);
+    rows.push([]);
+    rows.push([L?'Snag List':'整改记录']);
+    rows.push([L?'Priority':'优先级',L?'Location':'位置',L?'Issue':'问题',L?'Date':'日期',L?'Status':'状态']);
+    if(!d.snags.length)rows.push([L?'None':'无记录','','','','']);
+    else d.snags.forEach(x=>rows.push([x.p,x.l,x.x,x.d,x.s]));
+    rows.push([]);
+    rows.push([L?'Client Signature':'客户签署',d.sign.c]);
+    rows.push([L?'Contractor Signature':'施工方签署',d.sign.b]);
+    rows.push([L?'Remarks':'备注',d.sign.r]);
+    
+    const wb=XLSX.utils.book_new(); const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:10},{wch:50},{wch:15},{wch:30}];
+    XLSX.utils.book_append_sheet(wb,ws,L?'Handover':'交付确认书');
+    XLSX.writeFile(wb,`交付确认书_${d.info.n||'项目'}.xlsx`);
+    setStatus('Excel已导出 ✓');
+};
+
+// === PDF ===
+document.getElementById('btnPDF').onclick=()=>{
+    setStatus('生成PDF中...');
+    const d=gather(); const L=useEnglish;
+    const w=window.open('','_blank');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L?'Handover':'交付确认书'}</title><style>
+        body{font-family:"Microsoft YaHei",sans-serif;padding:30px;line-height:1.8}
+        h1{text-align:center;border-bottom:2px solid #234e9e;padding-bottom:10px}
+        h3{margin:15px 0 5px;color:#234e9e;border-bottom:1px solid #eee}
+        table{width:100%;border-collapse:collapse;margin-bottom:10px}
+        td,th{border:1px solid #ccc;padding:7px}
+        th{background:#f0f4f8}
+        .nb td{border:none}
+        .cb{width:30px;text-align:center;font-weight:bold}
+        .pg{page-break-after:always}
+    </style></head><body>
+    <h1>${L?'HANDOVER FORM':'交付确认书'}</h1>
+    <table class="nb">
+        <tr><td style="width:140px;font-weight:bold">${L?'Client Name':'客户姓名'}</td><td>${d.info.n}</td></tr>
+        <tr><td>${L?'Phone':'电话'}</td><td>${d.info.p}</td></tr>
+        <tr><td>${L?'Address':'地址'}</td><td>${d.info.a}</td></tr>
+        <tr><td>${L?'Order No.':'订单号'}</td><td>${d.info.o}</td></tr>
+        <tr><td>${L?'Salesperson':'销售人员'}</td><td>${d.info.s}</td></tr>
+        <tr><td>${L?'Site Manager':'现场主管'}</td><td>${d.info.m}</td></tr>
+    </table>
+    <h3>${L?'Schedule':'项目进度'}</h3>
+    <table><tr><th>${L?'Item':'项目'}</th><th style="width:130px">${L?'Date':'日期'}</th><th>${L?'Status':'状态'}</th></tr>
+        <tr><td>${L?'Re-measurement':'复尺确认'}</td><td>${d.sched.m.d||'-'}</td><td>${d.sched.m.v}</td></tr>
+        <tr><td>${L?'Production':'生产备货'}</td><td>${d.sched.p.d||'-'}</td><td>${d.sched.p.v}</td></tr>
+        <tr><td>${L?'Delivery':'送货到场'}</td><td>${d.sched.d.d||'-'}</td><td>${d.sched.d.v}</td></tr>
+        <tr><td>${L?'Installation':'安装完成'}</td><td>${d.sched.i.d||'-'}</td><td>${d.sched.i.v}</td></tr>
+        <tr><td>${L?'Handover':'验收交付'}</td><td>${d.sched.h.d||'-'}</td><td>${d.sched.h.v}</td></tr>
+    </table>
+    <div class="pg"></div>
+    <h3>${L?'Cabinet Inspection':'柜体验收'}</h3>
+    <table>${d.cab.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
+    <h3>${L?'Ceiling & MEP':'吊顶水电'}</h3>
+    <table>${d.mep.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
+    <h3>${L?'Finishing':'外观细节'}</h3>
+    <table>${d.fin.map(x=>`<tr><td class="cb">${x.chk?'☑':'☐'}</td><td>${L?x.en:x.zh}</td></tr>`).join('')}</table>
+    <h3>${L?'Warranty':'质保'}</h3>
+    <table class="nb">
+        <tr><td style="width:140px;font-weight:bold">${L?'Coverage':'内容'}</td><td>${d.war.c}</td></tr>
+        <tr><td>${L?'Period':'期限'}</td><td>${d.war.p}</td></tr>
+    </table>
+    <h3>${L?'Snag List':'整改记录'}</h3>
+    <table><tr><th>${L?'Priority':'优先级'}</th><th>${L?'Location':'位置'}</th><th>${L?'Issue':'问题'}</th><th style="width:110px">${L?'Date':'日期'}</th><th>${L?'Status':'状态'}</th></tr>
+        ${!d.snags.length?`<tr><td colspan="5" style="text-align:center">${L?'No records':'无记录'}</td></tr>`:d.snags.map(x=>`<tr><td>${x.p}</td><td>${x.l}</td><td>${x.x}</td><td>${x.d||'-'}</td><td>${x.s}</td></tr>`).join('')}
+    </table>
+    <h3>${L?'Signatures':'签署'}</h3>
+    <table class="nb">
+        <tr><td style="width:140px;font-weight:bold">${L?'Client':'客户'}</td><td>${d.sign.c}</td></tr>
+        <tr><td>${L?'Contractor':'施工方'}</td><td>${d.sign.b}</td></tr>
+        <tr><td>${L?'Remarks':'备注'}</td><td>${d.sign.r}</td></tr>
+    </table>
+    <script>window.print();<\/script></body></html>`);
+    w.document.close();
+    setStatus('PDF已导出 ✓');
+};
+
+// === 页面加载：读取本地保存 ===
+document.addEventListener('DOMContentLoaded', ()=>{
+    try{const s=localStorage.getItem('HD');if(s)restore(JSON.parse(s));}catch(e){}
+});
 document.addEventListener('input', autoSave);
-
-window.onload = function() {
-    try {
-        const saved = localStorage.getItem('HANDOVER_DATA');
-        if (saved) applyData(JSON.parse(saved));
-    } catch(e) {}
-};
 </script>
 </body>
 </html>
