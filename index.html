@@ -3,525 +3,617 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>全屋定制 · 交付确认书 | Handover</title>
+<title>交付确认书 | Handover Form</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
-:root{
-  --p:#234e9e; --s:#2b7de9; --g:#0ea573;
-  --bg:#f8fafc; --c:#fff; --t:#1f2937; --ts:#64748b; --b:#e2e8f0; --d:#dc3545;
-}
-[data-theme="dark"]{
-  --p:#3b82f6; --s:#60a5fa; --g:#34d399;
-  --bg:#0f172a; --c:#1e293b; --t:#f1f5f9; --ts:#94a3b8; --b:#475569; --d:#f87171;
-}
-body{background:var(--bg);color:var(--t);line-height:1.7;max-width:1160px;margin:0 auto;padding:20px 16px;}
-.bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;justify-content:space-between;}
-.grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-button{padding:8px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.9rem;}
-button:hover{opacity:.9;}
-.g{background:var(--g);color:#fff;}
-.b{background:var(--s);color:#fff;}
-.o{background:#f59e0b;color:#fff;}
-.x{background:var(--d);color:#fff;}
-.n{background:var(--b);color:var(--t);}
-.lang.active{background:var(--p);color:#fff;}
-.sync{padding:6px 10px;border-radius:20px;background:var(--g);color:#fff;font-size:.85rem;}
-.sync.off{background:var(--d);}
-header{text-align:center;padding:24px 0;border-bottom:3px solid var(--p);margin-bottom:20px;}
-h1{font-size:1.4rem;color:var(--p);margin-bottom:4px;}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:99;}
-.tab{padding:10px 14px;border-radius:6px;background:var(--c);border:1px solid var(--b);color:var(--t);}
-.tab.active{background:var(--p);color:#fff;border-color:var(--p);}
-.page{display:none;}
-.page.active{display:block;}
-.card{background:var(--c);border-radius:10px;padding:24px;margin-bottom:20px;}
-h2{font-size:1.15rem;margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid var(--b);color:var(--p);}
-h3{font-size:1rem;margin:20px 0 10px;color:var(--s);}
-table{width:100%;border-collapse:collapse;margin:12px 0;}
-th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--b);}
-th{background:var(--p);color:#fff;}
-input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--b);border-radius:5px;font-size:.95rem;background:transparent;color:var(--t);}
-.chk{display:flex;align-items:flex-start;padding:12px 8px;border-bottom:1px solid var(--b);gap:10px;cursor:pointer;}
-.chk input{width:auto;transform:scale(1.2);margin-top:2px;}
-.uparea{border:2px dashed var(--b);border-radius:8px;padding:30px;text-align:center;cursor:pointer;margin:10px 0;}
-.uparea:hover{border-color:var(--s);}
-.upinp{display:none;}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:10px;}
-.pitem{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--b);}
-.pitem img{width:100%;height:90px;object-fit:cover;display:block;}
-.pdel{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:var(--d);color:#fff;border:none;cursor:pointer;}
-.snag-row{border-bottom:1px solid var(--b);padding:14px 0;}
-.snag-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;}
-.snag-top>div{flex:1;min-width:110px;}
-.snag-photo{border:1px dashed var(--b);border-radius:6px;padding:6px;text-align:center;cursor:pointer;}
-.snag-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px;}
-.sig{display:flex;flex-wrap:wrap;gap:20px;margin-top:30px;}
-.sigcol{flex:1;min-width:200px;}
-.sigline{border-bottom:1px solid var(--b);height:40px;margin:8px 0;}
-.mask{position:fixed;inset:0;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;z-index:99999;}
-[data-theme="dark"] .mask{background:rgba(0,0,0,.85);color:#fff;}
-.spin{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.pdfmode .bar,.pdfmode .tabs,.pdfmode .snag-photo,.pdfmode .pdel{display:none!important;}
-.pdfmode,.pdfmode body,.pdfmode .card{background:#fff!important;color:#000!important;}
-.pdfmode th{background:var(--p)!important;}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100000;}
-.modal-box{background:var(--c);border-radius:10px;padding:20px;max-width:480px;width:90%;}
-.mlang-en{display:none;}
-body.en .mlang-zh{display:none!important;}
-body.en .mlang-en{display:inline!important;}
-footer{text-align:center;margin-top:30px;padding:15px 0;color:var(--ts);font-size:.85rem;}
-@media(max-width:768px){
-  .snag-top{flex-direction:column;align-items:stretch;}
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+body { background: #fff; color: #333; padding: 20px; max-width: 1000px; margin: 0 auto; }
+body.dark { background: #1a1a2e; color: #eee; }
+button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 2px; }
+button:hover { opacity: 0.8; }
+.btn-blue { background: #234e9e; color: white; }
+.btn-green { background: #0ea573; color: white; }
+.btn-orange { background: #f59e0b; color: white; }
+.btn-red { background: #e53935; color: white; }
+.btn-gray { background: #ddd; color: #333; }
+.top-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+.tab-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
+.tab { padding: 8px 12px; background: #eee; border-radius: 4px; cursor: pointer; }
+.tab.active { background: #234e9e; color: white; }
+.page { display: none; }
+.page.active { display: block; }
+.card { background: #f7f9fc; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+body.dark .card { background: #16213e; }
+h2 { font-size: 16px; margin-bottom: 12px; color: #234e9e; }
+h3 { font-size: 14px; margin: 10px 0 5px; color: #2b7de9; }
+input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin-top: 3px; margin-bottom: 8px; }
+body.dark input, body.dark select, body.dark textarea { background: #0f3460; color: white; border-color: #334155; }
+[contenteditable="true"] { padding: 4px; border-radius: 3px; }
+[contenteditable="true"]:focus { outline: 1px solid #234e9e; }
+.check-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; flex-wrap: wrap; }
+.check-item input[type="date"] { flex: 0 0 130px; margin: 0; }
+.check-item select { flex: 0 0 160px; margin: 0; }
+.lang-en { display: none; }
+body.use-en .lang-zh { display: none; }
+body.use-en .lang-en { display: inline; }
+.grid-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.grid-col { flex: 1; min-width: 200px; }
+.snag-row { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+body.dark .snag-row { border-color: #334155; background: #1e293b; }
+.photo-area { border: 1px dashed #ccc; padding: 8px; text-align: center; margin-top: 8px; border-radius: 4px; }
+.photo-btn { padding: 5px 10px; background: #eee; border-radius: 3px; cursor: pointer; display: inline-block; margin-top: 5px; }
+.photo-btn:hover { background: #ddd; }
+.photo-preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.photo-preview img { width: 80px; height: 60px; object-fit: cover; border-radius: 3px; }
+.del-btn { background: #e53935; color: white; padding: 3px 8px; font-size: 12px; margin-top: 5px; }
+.warranty-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+.warranty-line input { flex: 1; min-width: 200px; margin: 0; }
 </style>
 </head>
 <body>
 
-<div class="mask" id="pdfMask"><div class="spin"></div><p style="margin-left:10px;" class="mlang-zh">正在生成PDF...</p><p style="margin-left:10px;" class="mlang-en">Generating PDF...</p></div>
-<div class="modal" id="helpModal">
-  <div class="modal-box">
-    <h3 style="color:var(--p);margin-bottom:12px;">📝 <span class="mlang-zh">说明</span><span class="mlang-en">Help</span></h3>
-    <p style="margin:8px 0;" class="mlang-zh">• 填写后自动保存到本地</p>
-    <p style="margin:8px 0;" class="mlang-en">• Auto-saves locally as you fill</p>
-    <p style="margin:8px 0;" class="mlang-zh">• 可导出 Excel / PDF / 备份文件</p>
-    <p style="margin:8px 0;" class="mlang-en">• Export Excel / PDF / backup file</p>
-    <p style="margin:8px 0;" class="mlang-zh">• 双语、深色模式可随时切换</p>
-    <p style="margin:8px 0;" class="mlang-en">• Bilingual & dark mode toggle</p>
-    <button class="b" style="margin-top:10px;" id="closeHelp">OK</button>
-  </div>
+<div class="top-bar">
+    <button class="btn-green" onclick="saveAll()">💾 保存</button>
+    <button class="btn-gray" onclick="loadAll()">📂 读取</button>
+    <button class="btn-orange" onclick="exportExcel()">📊 Excel</button>
+    <button class="btn-red" onclick="exportPDF()">📄 PDF</button>
+    <button class="btn-gray" onclick="toggleDark()">🌙</button>
+    <button class="btn-gray" onclick="toggleLang()">中文/EN</button>
+    <span id="status" style="font-size:12px; color:green;">就绪</span>
 </div>
 
-<div class="bar">
-  <div class="grp">
-    <button class="g" id="btnSave">💾 <span class="mlang-zh">保存</span><span class="mlang-en">Save</span></button>
-    <button class="b" id="btnLoad">📂 <span class="mlang-zh">读取</span><span class="mlang-en">Load</span></button>
-    <button class="o" id="btnExcel">📊 Excel</button>
-    <button class="x" id="btnPDF">📄 PDF</button>
-    <button class="n" id="btnHelp">❓</button>
-    <span class="sync" id="sync">✓</span>
-  </div>
-  <div class="grp">
-    <button class="n" id="btnDark">🌙</button>
-    <button class="n lang active" data-lang="zh">中文</button>
-    <button class="n lang" data-lang="en">EN</button>
-  </div>
+<h1 style="text-align:center; margin-bottom:15px;"><span class="lang-zh">交付确认书</span><span class="lang-en">Handover Form</span></h1>
+
+<div class="tab-bar">
+    <div class="tab active" onclick="goTab('p1')">📋 <span class="lang-zh">信息</span><span class="lang-en">Info</span></div>
+    <div class="tab" onclick="goTab('p2')">🗄️ <span class="lang-zh">柜体</span><span class="lang-en">Cabinets</span></div>
+    <div class="tab" onclick="goTab('p3')">🔧 <span class="lang-zh">吊顶水电</span><span class="lang-en">Ceiling/MEP</span></div>
+    <div class="tab" onclick="goTab('p4')">✨ <span class="lang-zh">外观</span><span class="lang-en">Finishing</span></div>
+    <div class="tab" onclick="goTab('p5')">📝 <span class="lang-zh">整改</span><span class="lang-en">Snag List</span></div>
+    <div class="tab" onclick="goTab('p6')">✍️ <span class="lang-zh">签署</span><span class="lang-en">Sign</span></div>
 </div>
 
-<header>
-  <h1 class="mlang-zh">🏠 全屋定制 · 交付交接确认书</h1>
-  <h1 class="mlang-en">🏠 Custom Furniture Handover</h1>
-  <p class="mlang-zh">验收 · 质保 · 双方确认</p>
-  <p class="mlang-en">Inspection · Warranty · Sign-Off</p>
-</header>
-
-<div class="tabs">
-  <button class="tab active" data-page="p1"><span class="mlang-zh">📅 项目</span><span class="mlang-en">Project</span></button>
-  <button class="tab" data-page="p2"><span class="mlang-zh">🗄️ 柜体</span><span class="mlang-en">Cabinets</span></button>
-  <button class="tab" data-page="p3"><span class="mlang-zh">🔧 水电吊顶</span><span class="mlang-en">MEP</span></button>
-  <button class="tab" data-page="p4"><span class="mlang-zh">✨ 外观</span><span class="mlang-en">Finishing</span></button>
-  <button class="tab" data-page="p5"><span class="mlang-zh">📸 照片</span><span class="mlang-en">Photos</span></button>
-  <button class="tab" data-page="p6"><span class="mlang-zh">📝 整改</span><span class="mlang-en">Snags</span></button>
-  <button class="tab" data-page="p7"><span class="mlang-zh">✍️ 签署</span><span class="mlang-en">Sign</span></button>
-</div>
-
-<!-- P1 -->
+<!-- === 页面1：基本信息 & 进度 === -->
 <div class="page active" id="p1">
 <div class="card">
-<h2 class="mlang-zh">进度安排</h2><h2 class="mlang-en">Schedule</h2>
-<table id="tblSched">
-<thead><tr>
-  <th class="mlang-zh">阶段</th><th class="mlang-en">Stage</th>
-  <th class="mlang-zh">说明</th><th class="mlang-en">Description</th>
-  <th class="mlang-zh">日期</th><th class="mlang-en">Date</th>
-  <th class="mlang-zh">状态</th><th class="mlang-en">Status</th>
-</tr></thead>
-<tbody>
-<tr>
-  <td class="mlang-zh">复尺确认</td><td class="mlang-en">Measure</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">尺寸复核、图纸签字</span><span class="mlang-en">Measure & drawing sign-off</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">生产</td><td class="mlang-en">Production</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">生产质检包装</span><span class="mlang-en">Production & QC</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">送货</td><td class="mlang-en">Delivery</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">清点就位保护</span><span class="mlang-en">Delivery & placement</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">基础准备</td><td class="mlang-en">Site Prep</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">吊顶/水电基层到位</span><span class="mlang-en">Ceiling & MEP ready</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">安装</td><td class="mlang-en">Installation</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">组装固定调平</span><span class="mlang-en">Assembly & leveling</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog" selected>⏳</option><option value="pend">⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">清洁自检</td><td class="mlang-en">Cleanup</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">清洁、成品保护</span><span class="mlang-en">Cleaning & protection</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">验收</td><td class="mlang-en">Inspection</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">逐项验收、演示</span><span class="mlang-en">Check & handover demo</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-<tr>
-  <td class="mlang-zh">交付</td><td class="mlang-en">Handover</td>
-  <td contenteditable class="desc-col"><span class="mlang-zh">签字、质保移交</span><span class="mlang-en">Sign-off & warranty</span></td>
-  <td><input type="date" class="d-inp"></td>
-  <td><select class="s-sel"><option value="done">✅</option><option value="prog">⏳</option><option value="pend" selected>⬜</option></select></td>
-</tr>
-</tbody>
-</table>
+    <h2><span class="lang-zh">项目信息</span><span class="lang-en">Project Info</span></h2>
+    <div class="grid-row">
+        <div class="grid-col">
+            <label><span class="lang-zh">客户姓名</span><span class="lang-en">Name</span></label>
+            <input type="text" id="custName">
+        </div>
+        <div class="grid-col">
+            <label><span class="lang-zh">电话</span><span class="lang-en">Phone</span></label>
+            <input type="text" id="custPhone">
+        </div>
+    </div>
+    <div>
+        <label><span class="lang-zh">地址</span><span class="lang-en">Address</span></label>
+        <input type="text" id="siteAddr">
+    </div>
+    <div>
+        <label><span class="lang-zh">订单号</span><span class="lang-en">Order No.</span></label>
+        <input type="text" id="orderID">
+    </div>
 </div>
+
 <div class="card">
-<h2 class="mlang-zh">项目信息</h2><h2 class="mlang-en">Project Info</h2>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-<div><label class="mlang-zh">客户姓名</label><label class="mlang-en">Client Name</label><input id="i-name"></div>
-<div><label class="mlang-zh">联系电话</label><label class="mlang-en">Phone</label><input id="i-phone"></div>
-<div style="grid-column:1/-1;"><label class="mlang-zh">工地地址</label><label class="mlang-en">Site Address</label><input id="i-addr"></div>
-<div><label class="mlang-zh">订单编号</label><label class="mlang-en">Order No.</label><input id="i-ordno"></div>
-<div><label class="mlang-zh">施工范围</label><label class="mlang-en">Scope</label>
-<select id="i-scope">
-<option class="mlang-zh">橱柜</option><option class="mlang-en">Kitchen</option>
-<option class="mlang-zh">衣柜</option><option class="mlang-en">Wardrobe</option>
-<option class="mlang-zh">全屋</option><option class="mlang-en">Full Home</option>
-</select>
-</div>
-</div>
+    <h2><span class="lang-zh">项目进度</span><span class="lang-en">Project Schedule</span></h2>
+
+    <div class="check-item">
+        <span style="width:140px;"><span class="lang-zh">复尺确认</span><span class="lang-en">Re-measurement</span></span>
+        <input type="date" id="date_measure">
+        <select id="status_measure">
+            <option>🔴 待处理 / Pending</option>
+            <option>🟡 未开始 / Not Started</option>
+            <option>🟢 处理中 / In Progress</option>
+            <option>⏸️ 暂缓 / On Hold</option>
+            <option>✅ 已完成 / Completed</option>
+            <option>✔️ 已关闭 / Closed</option>
+        </select>
+    </div>
+
+    <div class="check-item">
+        <span style="width:140px;"><span class="lang-zh">生产备货</span><span class="lang-en">Production</span></span>
+        <input type="date" id="date_produce">
+        <select id="status_produce">
+            <option>🔴 待处理 / Pending</option>
+            <option>🟡 未开始 / Not Started</option>
+            <option>🟢 处理中 / In Progress</option>
+            <option>⏸️ 暂缓 / On Hold</option>
+            <option>✅ 已完成 / Completed</option>
+            <option>✔️ 已关闭 / Closed</option>
+        </select>
+    </div>
+
+    <div class="check-item">
+        <span style="width:140px;"><span class="lang-zh">送货到场</span><span class="lang-en">Delivery</span></span>
+        <input type="date" id="date_delivery">
+        <select id="status_delivery">
+            <option>🔴 待处理 / Pending</option>
+            <option>🟡 未开始 / Not Started</option>
+            <option>🟢 处理中 / In Progress</option>
+            <option>⏸️ 暂缓 / On Hold</option>
+            <option>✅ 已完成 / Completed</option>
+            <option>✔️ 已关闭 / Closed</option>
+        </select>
+    </div>
+
+    <div class="check-item">
+        <span style="width:140px;"><span class="lang-zh">安装完成</span><span class="lang-en">Installation</span></span>
+        <input type="date" id="date_install">
+        <select id="status_install">
+            <option>🔴 待处理 / Pending</option>
+            <option>🟡 未开始 / Not Started</option>
+            <option>🟢 处理中 / In Progress</option>
+            <option>⏸️ 暂缓 / On Hold</option>
+            <option>✅ 已完成 / Completed</option>
+            <option>✔️ 已关闭 / Closed</option>
+        </select>
+    </div>
+
+    <div class="check-item">
+        <span style="width:140px;"><span class="lang-zh">验收交付</span><span class="lang-en">Handover</span></span>
+        <input type="date" id="date_handover">
+        <select id="status_handover">
+            <option>🔴 待处理 / Pending</option>
+            <option>🟡 未开始 / Not Started</option>
+            <option>🟢 处理中 / In Progress</option>
+            <option>⏸️ 暂缓 / On Hold</option>
+            <option>✅ 已完成 / Completed</option>
+            <option>✔️ 已关闭 / Closed</option>
+        </select>
+    </div>
 </div>
 </div>
 
-<!-- P2 -->
+<!-- === 页面2：柜体验收 === -->
 <div class="page" id="p2">
 <div class="card">
-<h2 class="mlang-zh">柜体安装验收</h2><h2 class="mlang-en">Cabinets Acceptance</h2>
-<h3 class="mlang-zh">基础</h3><h3 class="mlang-en">General</h3>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">水平垂直、缝隙均匀≤3mm</span><span class="mlang-en">Level & plumb; gaps ≤3mm</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">柜体连接牢固无松动</span><span class="mlang-en">Firm; no wobble</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">封板严密、打胶顺直</span><span class="mlang-en">Neat trim & sealing</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">与墙/地面过渡完整</span><span class="mlang-en">Neat wall/floor transition</span></label>
-<h3 class="mlang-zh">门与铰链</h3><h3 class="mlang-en">Doors & Hinges</h3>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">门缝均匀、开关顺畅无异响</span><span class="mlang-en">Even gaps; smooth & quiet</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">铰链紧固、螺丝齐全</span><span class="mlang-en">Hinges tight; screws complete</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">缓冲有效、自动回关</span><span class="mlang-en">Soft-close works</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">拉手端正、统一牢固</span><span class="mlang-en">Handles aligned & secure</span></label>
-<h3 class="mlang-zh">抽屉与层板</h3><h3 class="mlang-en">Drawers & Shelves</h3>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">抽屉顺滑、关闭齐平</span><span class="mlang-en">Smooth; flush close</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">导轨牢固、防脱落</span><span class="mlang-en">Rails secure; anti-drop</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">层板稳固、高度可调</span><span class="mlang-en">Shelves adjustable & secure</span></label>
-<label class="chk"><input type="checkbox" class="ck-cab"><span class="mlang-zh">螺丝孔遮盖/补平</span><span class="mlang-en">Screw heads covered & filled</span></label>
+    <h2><span class="lang-zh">柜体安装验收</span><span class="lang-en">Cabinet Inspection</span></h2>
+    <h3><span class="lang-zh">基础安装</span><span class="lang-en">Installation</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">柜体水平垂直、缝隙均匀</span><span contenteditable="true" class="lang-en">Level & plumb, even gaps</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">连接牢固、无松动异响</span><span contenteditable="true" class="lang-en">Firm, no rattle</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">封板收口严密、打胶顺直</span><span contenteditable="true" class="lang-en">Trim tight, sealant neat</span></div>
+    
+    <h3><span class="lang-zh">门与铰链</span><span class="lang-en">Doors & Hinges</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">门缝均匀、开关顺畅</span><span contenteditable="true" class="lang-en">Even gaps, smooth open/close</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">铰链牢固、缓冲有效</span><span contenteditable="true" class="lang-en">Hinges secure, soft-close works</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">拉手端正牢固</span><span contenteditable="true" class="lang-en">Handles aligned & secure</span></div>
+
+    <h3><span class="lang-zh">抽屉与层板</span><span class="lang-en">Drawers & Shelves</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">抽屉推拉顺滑、关闭齐平</span><span contenteditable="true" class="lang-en">Drawers slide smoothly</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">导轨牢固、承重正常</span><span contenteditable="true" class="lang-en">Rails secure, load OK</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">层板稳固、螺丝盖齐全</span><span contenteditable="true" class="lang-en">Shelves stable, caps installed</span></div>
 </div>
 </div>
 
-<!-- P3 -->
+<!-- === 页面3：吊顶水电 === -->
 <div class="page" id="p3">
 <div class="card">
-<h2 class="mlang-zh">吊顶水电验收</h2><h2 class="mlang-en">Ceiling & MEP</h2>
-<h3 class="mlang-zh">吊顶</h3><h3 class="mlang-en">Ceiling</h3>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">龙骨牢固、间距合规</span><span class="mlang-en">Framing secure & compliant</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">板面平整、无开裂变形</span><span class="mlang-en">Flat; no cracks or warp</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">边龙骨顺直、转角加固</span><span class="mlang-en">Trim neat; corners reinforced</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">灯具/检修口开孔整齐收边</span><span class="mlang-en">Cutouts neat & edged</span></label>
-<h3 class="mlang-zh">电气</h3><h3 class="mlang-en">Electrical</h3>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">管线整齐固定牢固</span><span class="mlang-en">Tidy & secure wiring</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">回路合理、漏保有效</span><span class="mlang-en">Circuits & RCD tested</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">灯具全亮、接线隐蔽规范</span><span class="mlang-en">All lights work; wiring concealed</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">开关/插座位置正确灵敏</span><span class="mlang-en">Switches & sockets correct & working</span></label>
-<h3 class="mlang-zh">给排水</h3><h3 class="mlang-en">Plumbing</h3>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">给水管试压合格无渗漏</span><span class="mlang-en">Pressure tested; no leak</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">排水通畅、坡度正确无积水</span><span class="mlang-en">Free flow; correct fall; no pooling</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">管线避开柜体、开孔完好</span><span class="mlang-en">Cutouts neatly edged</span></label>
-<label class="chk"><input type="checkbox" class="ck-mep"><span class="mlang-zh">水电图已交付客户</span><span class="mlang-en">Drawings handed over</span></label>
+    <h2><span class="lang-zh">吊顶与水电验收</span><span class="lang-en">Ceiling & MEP</span></h2>
+    <h3><span class="lang-zh">吊顶工程</span><span class="lang-en">Ceiling</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">龙骨牢固、间距合规</span><span contenteditable="true" class="lang-en">Frame secure, correct spacing</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">板面平整、无开裂</span><span contenteditable="true" class="lang-en">Panels flat, no cracks</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">开孔整齐、封边完好</span><span contenteditable="true" class="lang-en">Cutouts neat & edged</span></div>
+
+    <h3><span class="lang-zh">电气线路</span><span class="lang-en">Electrical</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">线路整齐、无裸露</span><span contenteditable="true" class="lang-en">Wiring neat, no exposed</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">开关插座通电正常</span><span contenteditable="true" class="lang-en">All switches & sockets working</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">灯具全亮、感应正常</span><span contenteditable="true" class="lang-en">All lights working</span></div>
+
+    <h3><span class="lang-zh">给排水</span><span class="lang-en">Plumbing</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">给水管无渗漏</span><span contenteditable="true" class="lang-en">No water leaks</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">排水通畅、无积水</span><span contenteditable="true" class="lang-en">Drainage clear, no pooling</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">管线避开柜体、密封完好</span><span contenteditable="true" class="lang-en">Pipes clear, openings sealed</span></div>
 </div>
 </div>
 
-<!-- P4 -->
+<!-- === 页面4：外观细节 & 质保 === -->
 <div class="page" id="p4">
 <div class="card">
-<h2 class="mlang-zh">外观细节验收</h2><h2 class="mlang-en">Finishing Details</h2>
-<h3 class="mlang-zh">表面</h3><h3 class="mlang-en">Surfaces</h3>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">颜色纹理与样板一致、无色差</span><span class="mlang-en">Matches sample; no colour difference</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">无划痕磕碰胶印污渍</span><span class="mlang-en">No scratches, dents, marks or stains</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">封边牢固无脱胶崩边</span><span class="mlang-en">Edging intact; no lifting or chipping</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">开孔整齐准确、封边到位</span><span class="mlang-en">Cutouts neat, accurate & edged</span></label>
-<h3 class="mlang-zh">配件</h3><h3 class="mlang-en">Accessories</h3>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">拉篮/转盘/抽屉拉动顺畅</span><span class="mlang-en">All fittings move smoothly</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">感应灯带效果正常</span><span class="mlang-en">LED & sensors work properly</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">台面接缝平整抛光一致</span><span class="mlang-en">Seams flat & polished</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">清洁彻底、保护膜全除</span><span class="mlang-en">Fully cleaned; all film removed</span></label>
-<h3 class="mlang-zh">质保</h3><h3 class="mlang-en">Warranty</h3>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">使用方法当面演示</span><span class="mlang-en">Usage demonstrated on-site</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">保养注意事项已说明</span><span class="mlang-en">Care instructions explained</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">质保卡/售后电话已交</span><span class="mlang-en">Warranty card & contact provided</span></label>
-<label class="chk"><input type="checkbox" class="ck-fin"><span class="mlang-zh">柜体2年 / 五金5年</span><span class="mlang-en">Structure 2yr / Hardware 5yr</span></label>
+    <h2><span class="lang-zh">外观细节验收</span><span class="lang-en">Finishing Details</span></h2>
+    <h3><span class="lang-zh">表面与饰面</span><span class="lang-en">Surfaces</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">颜色纹理与样板一致</span><span contenteditable="true" class="lang-en">Matches approved sample</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">无划痕、磕碰、污渍</span><span contenteditable="true" class="lang-en">No scratches, dents or stains</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">封边牢固、无脱胶崩边</span><span contenteditable="true" class="lang-en">Edging intact, no chipping</span></div>
+
+    <h3><span class="lang-zh">配件与清洁</span><span class="lang-en">Fittings & Cleanup</span></h3>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">五金配件功能正常</span><span contenteditable="true" class="lang-en">All fittings working</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">灯带/感应灯正常</span><span contenteditable="true" class="lang-en">LED lights & sensors OK</span></div>
+    <div class="check-item"><input type="checkbox"><span contenteditable="true" class="lang-zh">现场清洁、保护膜已除</span><span contenteditable="true" class="lang-en">Site cleaned, film removed</span></div>
+
+    <h3><span class="lang-zh">质保说明</span><span class="lang-en">Warranty</span></h3>
+    <div class="warranty-line">
+        <span class="lang-zh">质保内容</span><span class="lang-en">Warranty Details</span>：
+        <input type="text" id="warranty_content">
+    </div>
+    <div class="warranty-line" style="margin-top:5px;">
+        <span class="lang-zh">质保期限</span><span class="lang-en">Warranty Period</span>：
+        <input type="text" id="warranty_period">
+    </div>
 </div>
 </div>
 
-<!-- P5 -->
+<!-- === 页面5：整改记录 === -->
 <div class="page" id="p5">
 <div class="card">
-<h2 class="mlang-zh">整体完工照片</h2><h2 class="mlang-en">Completion Photos</h2>
-<div class="uparea" id="photoArea">
-<p style="font-size:2rem;margin-bottom:8px;">📷</p>
-<p class="mlang-zh">点击上传 · 可多选</p>
-<p class="mlang-en">Click to upload · Multi-select</p>
-<input type="file" id="photoInput" class="upinp" accept="image/*" multiple>
-</div>
-<div class="pgrid" id="photoList"></div>
+    <h2><span class="lang-zh">问题整改记录</span><span class="lang-en">Snag List</span></h2>
+    <div id="snagContainer"></div>
+    <button class="btn-blue" onclick="addSnag()">➕ <span class="lang-zh">添加整改项</span><span class="lang-en">Add Item</span></button>
 </div>
 </div>
 
-<!-- P6 -->
+<!-- === 页面6：签署 === -->
 <div class="page" id="p6">
 <div class="card">
-<h2 class="mlang-zh">问题整改清单</h2><h2 class="mlang-en">Snag List</h2>
-<p style="color:var(--ts);margin-bottom:12px;" class="mlang-zh">写明位置、问题、期限，可附照片</p>
-<p style="color:var(--ts);margin-bottom:12px;" class="mlang-en">Note location, issue, due date; attach photos</p>
-<div id="snagContainer"></div>
-<button class="b" id="addSnagBtn" style="margin-top:8px;">➕ <span class="mlang-zh">添加项</span><span class="mlang-en">Add Item</span></button>
+    <h2 style="text-align:center;"><span class="lang-zh">交付确认</span><span class="lang-en">Handover Confirmation</span></h2>
+    <p style="margin:10px 0; line-height:1.8;">
+        <span class="lang-zh">本项目按合同及图纸施工完成，经双方验收合格，即日起交付使用。质保条款已当面说明。</span>
+        <span class="lang-en">Works completed and inspected. Handover effective today. Warranty explained.</span>
+    </p>
+    <div class="grid-row" style="margin-top:20px;">
+        <div class="grid-col">
+            <label><span class="lang-zh">客户签署</span><span class="lang-en">Client Signature</span></label>
+            <input type="text" id="clientSign">
+        </div>
+        <div class="grid-col">
+            <label><span class="lang-zh">施工方签署</span><span class="lang-en">Contractor Signature</span></label>
+            <input type="text" id="contractorSign">
+        </div>
+    </div>
+    <div style="margin-top:15px;">
+        <label><span class="lang-zh">备注</span><span class="lang-en">Remarks</span></label>
+        <textarea id="remarks" rows="3"></textarea>
+    </div>
+    <p style="margin-top:20px; text-align:center; font-weight:bold; color:#234e9e;">
+        <span class="lang-zh">质保内容：</span><span class="lang-en">Warranty Details: </span>
+        <span id="warranty_footer_content"></span>
+        <br>
+        <span class="lang-zh">质保期限：</span><span class="lang-en">Warranty Period: </span>
+        <span id="warranty_footer_period"></span>
+    </p>
 </div>
 </div>
-
-<!-- P7 -->
-<div class="page" id="p7">
-<div class="card">
-<h2 style="text-align:center;" class="mlang-zh">交付确认书</h2>
-<h2 style="text-align:center;" class="mlang-en">Handover Certificate</h2>
-<div style="margin:24px 0;line-height:2.2;">
-<p class="mlang-zh">1. 工程按合同及图纸完成 ✅</p>
-<p class="mlang-en">1. Works completed per contract & drawings ✅</p>
-<p class="mlang-zh">2. 结构/安装/饰面/水电验收合格 ✅</p>
-<p class="mlang-en">2. Structure, finishes & services accepted ✅</p>
-<p class="mlang-zh">3. 使用保养当面说明 ✅</p>
-<p class="mlang-en">3. Operation & maintenance explained ✅</p>
-<p class="mlang-zh">4. 质保文件移交、即日生效 ✅</p>
-<p class="mlang-en">4. Warranty effective from today ✅</p>
-<p class="mlang-zh">5. 未列明事项视为验收合格 ✅</p>
-<p class="mlang-en">5. Unlisted items deemed accepted ✅</p>
-<p style="color:var(--ts);font-size:.9rem;margin-top:8px;" class="mlang-zh">（整改项不影响整体交付）</p>
-<p style="color:var(--ts);font-size:.9rem;margin-top:8px;" class="mlang-en">(Snags do not affect overall handover)</p>
-</div>
-<div class="sig">
-<div class="sigcol"><p class="mlang-zh">客户签署</p><p class="mlang-en">Client Signature</p><div class="sigline"></div><input id="s-cli" placeholder="Name / Date"></div>
-<div class="sigcol"><p class="mlang-zh">施工方签署</p><p class="mlang-en">Contractor Signature</p><div class="sigline"></div><input id="s-con" placeholder="Name / Date"></div>
-<div class="sigcol"><p class="mlang-zh">备注/盖章</p><p class="mlang-en">Remarks / Stamp</p><div class="sigline"></div><textarea id="s-rem" rows="3"></textarea></div>
-</div>
-<p style="margin-top:24px;text-align:center;color:var(--ts);font-weight:bold;" class="mlang-zh">质保：柜体2年 · 五金5年</p>
-<p style="margin-top:24px;text-align:center;color:var(--ts);font-weight:bold;" class="mlang-en">Warranty: Structure 2yr · Hardware 5yr</p>
-</div>
-</div>
-
-<footer>© 2026 Custom Furniture Handover</footer>
 
 <script>
-'use strict';
-const $ = id => document.getElementById(id);
-const state = { lang: 'zh', dark: false, photos: [], snags: [] };
+let useEnglish = false;
+let darkMode = false;
+let snags = [];
+let snagId = 0;
 
-// --- 页面切换 ---
-document.querySelectorAll('.tab').forEach(t => {
-  t.onclick = () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-    t.classList.add('active'); $(t.dataset.page).classList.add('active');
-  };
-});
-
-// --- 双语 ---
-document.querySelectorAll('.lang').forEach(b => {
-  b.onclick = () => {
-    state.lang = b.dataset.lang;
-    document.body.classList.toggle('en', state.lang === 'en');
-    document.querySelectorAll('.lang').forEach(l => l.classList.toggle('active', l.dataset.lang === state.lang));
-    localStorage.setItem('_lang', state.lang);
-  };
-});
-try{ const cl = localStorage.getItem('_lang'); if(cl){ state.lang=cl; document.body.classList.toggle('en', state.lang==='en'); document.querySelectorAll('.lang').forEach(l=>l.classList.toggle('active', l.dataset.lang===state.lang)); }}catch(e){}
-
-// --- 深色模式 ---
-$('btnDark').onclick = () => {
-  state.dark = !state.dark;
-  document.documentElement.setAttribute('data-theme', state.dark?'dark':'');
-  $('btnDark').textContent = state.dark?'☀️':'🌙';
-  localStorage.setItem('_dark', state.dark?'1':'');
-};
-try{ if(localStorage.getItem('_dark')==='1'){ state.dark=true; document.documentElement.setAttribute('data-theme','dark'); $('btnDark').textContent='☀️'; }}catch(e){}
-
-// --- 帮助弹窗 ---
-$('btnHelp').onclick = () => { $('helpModal').style.display='flex'; };
-$('closeHelp').onclick = () => { $('helpModal').style.display='none'; };
-
-// --- 整体照片 ---
-$('photoArea').onclick = () => $('photoInput').click();
-$('photoInput').onchange = e => {
-  for(const f of e.target.files||[]){
-    if(!f.type.startsWith('image/')) continue;
-    const r = new FileReader();
-    r.onload = ev => { state.photos.push(ev.target.result); renderPhotos(); savePending(); };
-    r.readAsDataURL(f);
-  }
-  e.target.value='';
-};
-function renderPhotos(){
-  const c = $('photoList'); c.innerHTML='';
-  state.photos.forEach((src,i) => {
-    const d = document.createElement('div'); d.className='pitem';
-    d.innerHTML = `<button class="pdel">×</button><img src="${src}">`;
-    d.querySelector('.pdel').onclick = () => { state.photos.splice(i,1); renderPhotos(); savePending(); };
-    c.appendChild(d);
-  });
+function goTab(pageId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(pageId).classList.add('active');
 }
 
-// --- 整改项 ---
-let nextSid = 0;
-function addSnagItem(item){
-  const it = item || { sid:++nextSid, loc:'', iss:'', prio:'🔴', due:'', stat:state.lang==='en'?'Pending':'待处理', photos:[] };
-  if(!item) state.snags.push(it);
-  const idx = state.snags.indexOf(it)+1;
-  const d = document.createElement('div'); d.className='snag-row'; d.dataset.sid=it.sid;
-  d.innerHTML = `
-  <div class="snag-top">
-    <div style="min-width:40px;"><strong>#${idx}</strong></div>
-    <div><label class="mlang-zh">位置</label><label class="mlang-en">Loc</label><input class="sn-loc" value="${it.loc}"></div>
-    <div style="flex:2;"><label class="mlang-zh">问题</label><label class="mlang-en">Issue</label><input class="sn-iss" value="${it.iss}"></div>
-    <div style="width:70px;"><label class="mlang-zh">紧急</label><label class="mlang-en">Prio</label>
-      <select class="sn-prio"><option ${it.prio==='🔴'?'selected':''}>🔴</option><option ${it.prio==='🟡'?'selected':''}>🟡</option><option ${it.prio==='🟢'?'selected':''}>🟢</option></select></div>
-    <div style="width:100px;"><label class="mlang-zh">期限</label><label class="mlang-en">Due</label><input type="date" class="sn-due" value="${it.due}"></div>
-    <div style="width:110px;"><label class="mlang-zh">状态</label><label class="mlang-en">Status</label>
-      <select class="sn-stat">
-        <option ${it.stat===(state.lang==='en'?'Pending':'待处理')?'selected':''}>${state.lang==='en'?'Pending':'待处理'}</option>
-        <option ${it.stat===(state.lang==='en'?'In Progress':'处理中')?'selected':''}>${state.lang==='en'?'In Progress':'处理中'}</option>
-        <option ${it.stat==='✅'?'selected':''}>✅</option>
-      </select></div>
-    <button class="n sn-rm">🗑️</button>
-  </div>
-  <div style="margin-left:40px;">
-    <div class="snag-photo sn-upbtn"><span class="mlang-zh">添加照片</span><span class="mlang-en">Photos</span></div>
-    <input type="file" class="upinp sn-fileinp" accept="image/*" multiple>
-    <div class="snag-pgrid sn-pics"></div>
-  </div>`;
-  d.querySelector('.sn-rm').onclick = () => { if(confirm(state.lang==='en'?'Delete?':'确定删除？')){ state.snags=state.snags.filter(x=>x.sid!==it.sid); d.remove(); savePending(); }};
-  d.querySelector('.sn-upbtn').onclick = () => d.querySelector('.sn-fileinp').click();
-  d.querySelector('.sn-fileinp').onchange = e => {
-    for(const f of e.target.files||[]){
-      if(!f.type.startsWith('image/')) continue;
-      const r=new FileReader(); r.onload=ev=>{ it.photos.push(ev.target.result); showSnagPics(d,it.photos); savePending(); }; r.readAsDataURL(f);
+function toggleLang() {
+    useEnglish = !useEnglish;
+    document.body.classList.toggle('use-en', useEnglish);
+    saveStatus(useEnglish ? 'English' : '中文');
+}
+
+function toggleDark() {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark', darkMode);
+    saveStatus(darkMode ? '🌙 暗黑' : '☀️ 明亮');
+}
+
+function addSnag() {
+    snagId++;
+    snags.push({ 
+        id: snagId, 
+        priority: '🔴', 
+        location: '', 
+        issue: '', 
+        due: '', 
+        status: '🔴 待处理 / Pending', 
+        photos: [] 
+    });
+    renderSnags();
+}
+
+function renderSnags() {
+    const container = document.getElementById('snagContainer');
+    container.innerHTML = '';
+    snags.forEach((item, idx) => {
+        const html = `
+        <div class="snag-row" data-id="${item.id}">
+            <strong>#${idx+1}</strong>
+            <select onchange="updateSnag(${item.id}, 'priority', this.value)" style="width:auto;">
+                <option value="🔴" ${item.priority==='🔴'?'selected':''}>🔴</option>
+                <option value="🟡" ${item.priority==='🟡'?'selected':''}>🟡</option>
+                <option value="🟢" ${item.priority==='🟢'?'selected':''}>🟢</option>
+            </select>
+            <input type="date" value="${item.due}" onchange="updateSnag(${item.id}, 'due', this.value)" style="width:auto;">
+            <select onchange="updateSnag(${item.id}, 'status', this.value)" style="width:auto;">
+                <option ${item.status==='🔴 待处理 / Pending'?'selected':''}>🔴 待处理 / Pending</option>
+                <option ${item.status==='🟡 未开始 / Not Started'?'selected':''}>🟡 未开始 / Not Started</option>
+                <option ${item.status==='🟢 处理中 / In Progress'?'selected':''}>🟢 处理中 / In Progress</option>
+                <option ${item.status==='⏸️ 暂缓 / On Hold'?'selected':''}>⏸️ 暂缓 / On Hold</option>
+                <option ${item.status==='✅ 已完成 / Completed'?'selected':''}>✅ 已完成 / Completed</option>
+                <option ${item.status==='✔️ 已关闭 / Closed'?'selected':''}>✔️ 已关闭 / Closed</option>
+            </select>
+            <div>
+                <label>${useEnglish?'Location':'位置'}</label>
+                <input type="text" value="${item.location}" oninput="updateSnag(${item.id}, 'location', this.value)">
+            </div>
+            <div>
+                <label>${useEnglish?'Issue':'问题描述'}</label>
+                <textarea rows="2" oninput="updateSnag(${item.id}, 'issue', this.value)">${item.issue}</textarea>
+            </div>
+            <div class="photo-area">
+                <p>📷 ${useEnglish?'Photos':'照片'}</p>
+                <span class="photo-btn" onclick="document.getElementById('file-${item.id}').click()">+ ${useEnglish?'Add Photo':'添加照片'}</span>
+                <input type="file" id="file-${item.id}" accept="image/*" multiple style="display:none;" onchange="addPhoto(${item.id}, this)">
+                <div class="photo-preview" id="photos-${item.id}">
+                    ${item.photos.map(p => `<div><img src="${p}"><button class="del-btn" onclick="delPhoto(${item.id}, ${item.photos.indexOf(p)})">×</button></div>`).join('')}
+                </div>
+            </div>
+            <button class="del-btn" onclick="delSnag(${item.id})">🗑️ ${useEnglish?'Delete':'删除'}</button>
+        </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function updateSnag(id, field, value) {
+    const item = snags.find(s => s.id === id);
+    if (item) item[field] = value;
+    autoSave();
+}
+
+function delSnag(id) {
+    if (confirm(useEnglish ? 'Delete this item?' : '确定删除？')) {
+        snags = snags.filter(s => s.id !== id);
+        renderSnags();
+        autoSave();
     }
-    e.target.value='';
-  };
-  ['loc','iss','prio','due','stat'].forEach(f => {
-    const inp = d.querySelector('.sn-'+({loc:'loc',iss:'iss',prio:'prio',due:'due',stat:'stat'}[f]));
-    inp.oninput = inp.onchange = () => { it[f] = inp.value; savePending(); };
-  });
-  showSnagPics(d, it.photos);
-  $('snagContainer').appendChild(d);
 }
-function showSnagPics(div, pics){
-  const c = div.querySelector('.sn-pics'); c.innerHTML='';
-  pics.forEach((src,i)=>{
-    const d=document.createElement('div'); d.className='pitem';
-    d.innerHTML=`<button class="pdel">×</button><img src="${src}">`;
-    d.querySelector('.pdel').onclick=()=>{ pics.splice(i,1); showSnagPics(div,pics); savePending(); };
-    c.appendChild(d);
-  });
-}
-$('addSnagBtn').onclick = () => { addSnagItem(); };
 
-// --- 数据收集/保存/读取 ---
-function collect(){
-  state.snags.forEach(s=>{
-    const el = document.querySelector(`[data-sid="${s.sid}"]`);
-    if(el){ s.loc=el.querySelector('.sn-loc').value; s.iss=el.querySelector('.sn-iss').value; s.prio=el.querySelector('.sn-prio').value; s.due=el.querySelector('.sn-due').value; s.stat=el.querySelector('.sn-stat').value; }
-  });
-  return {
-    name:$('i-name').value, phone:$('i-phone').value, addr:$('i-addr').value, ordno:$('i-ordno').value, scope:$('i-scope').value,
-    dates:Array.from(document.querySelectorAll('.d-inp')).map(i=>i.value), statuses:Array.from(document.querySelectorAll('.s-sel')).map(s=>s.value),
-    cabs:Array.from(document.querySelectorAll('.ck-cab')).map(c=>c.checked), meps:Array.from(document.querySelectorAll('.ck-mep')).map(c=>c.checked), fins:Array.from(document.querySelectorAll('.ck-fin')).map(c=>c.checked),
-    photos:state.photos, snags:state.snags.map(s=>({loc:s.loc,iss:s.iss,prio:s.prio,due:s.due,stat:s.stat,photos:s.photos})),
-    scli:$('s-cli').value, scon:$('s-con').value, srem:$('s-rem').value, saved:new Date().toLocaleString('zh-MY')
-  };
+function addPhoto(id, input) {
+    const files = input.files;
+    const item = snags.find(s => s.id === id);
+    if (!item) return;
+    for (let i = 0; i < files.length; i++) {
+        if (!files[i].type.startsWith('image/')) continue;
+        const reader = new FileReader();
+        reader.onload = e => {
+            item.photos.push(e.target.result);
+            renderSnags();
+            autoSave();
+        };
+        reader.readAsDataURL(files[i]);
+    }
+    input.value = '';
 }
-function applyData(d){
-  if(!d) return;
-  $('i-name').value=d.name||''; $('i-phone').value=d.phone||''; $('i-addr').value=d.addr||''; $('i-ordno').value=d.ordno||''; $('i-scope').value=d.scope||'';
-  document.querySelectorAll('.d-inp').forEach((i,idx)=>i.value=(d.dates||[])[idx]||'');
-  document.querySelectorAll('.s-sel').forEach((s,idx)=>s.value=(d.statuses||[])[idx]||'pend');
-  document.querySelectorAll('.ck-cab').forEach((c,idx)=>c.checked=(d.cabs||[])[idx]||false);
-  document.querySelectorAll('.ck-mep').forEach((c,idx)=>c.checked=(d.meps||[])[idx]||false);
-  document.querySelectorAll('.ck-fin').forEach((c,idx)=>c.checked=(d.fins||[])[idx]||false);
-  state.photos=d.photos||[]; renderPhotos();
-  state.snags=[]; $('snagContainer').innerHTML=''; (d.snags||[]).forEach(s=>addSnagItem({sid:++nextSid,loc:s.loc,iss:s.iss,prio:s.prio,due:s.due,stat:s.stat,photos:s.photos||[]}));
-  $('s-cli').value=d.scli||''; $('s-con').value=d.scon||''; $('s-rem').value=d.srem||'';
-}
-function savePending(){
-  try{ localStorage.setItem('_data',JSON.stringify(collect())); $('sync').textContent='✓'; $('sync').classList.remove('off'); }
-  catch{ $('sync').textContent='空间满'; $('sync').classList.add('off'); }
-}
-setInterval(savePending,6000);
-$('btnSave').onclick = () => {
-  savePending(); const d=collect(); const b=new Blob([JSON.stringify(d,null,2)]); const a=document.createElement('a'); a.href=URL.createObjectURL(b);
-  a.download=`交付_${d.name||'项目'}_${new Date().toLocaleDateString('zh-MY').replace(/\//g,'-')}.json`; a.click();
-};
-$('btnLoad').onclick = () => {
-  const i=document.createElement('input'); i.type='file'; i.accept='.json'; i.onchange=e=>{
-    const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{
-      try{ applyData(JSON.parse(ev.target.result)); alert(state.lang==='en'?'Loaded!':'读取成功！'); }catch{ alert(state.lang==='en'?'Invalid file':'文件无效！'); }
-    }; r.readAsText(f);
-  }; i.click();
-};
-try{ const ld=localStorage.getItem('_data'); if(ld)applyData(JSON.parse(ld)); }catch(e){}
 
-// --- Excel ---
-$('btnExcel').onclick = () => {
-  const d=collect(); const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['客户',d.name],['电话',d.phone],['地址',d.addr],['单号',d.ordno],['范围',d.scope],['时间',d.saved]]),'信息');
-  const pNames=state.lang==='zh'?['复尺','生产','送货','基础','安装','清洁','验收','交付']:['Measure','Produce','Deliver','Prep','Install','Clean','Inspect','Handover'];
-  const sMap={done:'✅',prog:'⏳',pend:'⬜'}; const pSheet=[['阶段','日期','状态']]; pNames.forEach((n,i)=>pSheet.push([n,d.dates[i]||'',sMap[d.statuses[i]]||'']));
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pSheet),'进度');
-  const cSheet=[['柜体','水电','外观']]; const m=Math.max(d.cabs.length,d.meps.length,d.fins.length);
-  for(let i=0;i<m;i++)cSheet.push([d.cabs[i]?'✅':'⬜',d.meps[i]?'✅':'⬜',d.fins[i]?'✅':'⬜']);
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cSheet),'验收');
-  const gSheet=[['#','位置','问题','紧急','期限','状态','照片数']]; d.snags.forEach((s,i)=>gSheet.push([i+1,s.loc,s.iss,s.prio,s.due,s.stat,s.photos.length]));
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(gSheet),'整改');
-  XLSX.writeFile(wb,`交付_${d.name||'项目'}_${new Date().toLocaleDateString('zh-MY').replace(/\//g,'-')}.xlsx`);
-};
+function delPhoto(id, idx) {
+    const item = snags.find(s => s.id === id);
+    if (item) {
+        item.photos.splice(idx, 1);
+        renderSnags();
+        autoSave();
+    }
+}
 
-// --- PDF ---
-$('btnPDF').onclick = async () => {
-  $('pdfMask').style.display='flex'; document.body.classList.add('pdfmode');
-  try{
-    const canvas = await html2canvas(document.body, { scale: 2, useCORS: true });
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p','mm','a4');
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const ratio = canvas.width/canvas.height;
-    const w=210, h=297;
-    let pw=w, ph=pw/ratio;
-    if(ph>h){ ph=h; pw=ph*ratio; }
-    const x=(w-pw)/2;
-    pdf.addImage(imgData,'JPEG',x,10,pw,ph);
-    const d=collect();
-    pdf.save(`交付_${d.name||'项目'}_${new Date().toLocaleDateString('zh-MY').replace(/\//g,'-')}.pdf`);
-  }catch(err){ alert(state.lang==='en'?'PDF export failed':'PDF导出失败，请重试'); console.error(err); }
-  document.body.classList.remove('pdfmode'); $('pdfMask').style.display='none';
+function updateWarrantyFooter() {
+    document.getElementById('warranty_footer_content').textContent = document.getElementById('warranty_content').value;
+    document.getElementById('warranty_footer_period').textContent = document.getElementById('warranty_period').value;
+}
+
+function collectData() {
+    return {
+        lang: useEnglish ? 'en' : 'zh',
+        dark: darkMode,
+        customer: {
+            name: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            address: document.getElementById('siteAddr').value,
+            orderID: document.getElementById('orderID').value
+        },
+        schedule: {
+            measure: { date: document.getElementById('date_measure').value, status: document.getElementById('status_measure').value },
+            produce: { date: document.getElementById('date_produce').value, status: document.getElementById('status_produce').value },
+            delivery: { date: document.getElementById('date_delivery').value, status: document.getElementById('status_delivery').value },
+            install: { date: document.getElementById('date_install').value, status: document.getElementById('status_install').value },
+            handover: { date: document.getElementById('date_handover').value, status: document.getElementById('status_handover').value }
+        },
+        warranty: {
+            content: document.getElementById('warranty_content').value,
+            period: document.getElementById('warranty_period').value
+        },
+        snags: snags,
+        signature: {
+            client: document.getElementById('clientSign').value,
+            contractor: document.getElementById('contractorSign').value,
+            remarks: document.getElementById('remarks').value
+        },
+        savedAt: new Date().toLocaleString('zh-MY')
+    };
+}
+
+function autoSave() {
+    updateWarrantyFooter();
+    try { localStorage.setItem('HANDOVER_DATA', JSON.stringify(collectData())); } catch(e) {}
+}
+
+function saveStatus(text) {
+    document.getElementById('status').textContent = text;
+    setTimeout(() => { document.getElementById('status').textContent = '就绪'; }, 2000);
+}
+
+function saveAll() {
+    const data = collectData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `交付确认书_${data.customer.name||'项目'}.json`;
+    a.click();
+    saveStatus('已保存 ✓');
+}
+
+function loadAll() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const d = JSON.parse(ev.target.result);
+                applyData(d);
+                saveStatus('读取成功 ✓');
+            } catch {
+                alert(useEnglish ? 'File error' : '文件错误');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function applyData(d) {
+    if (!d) return;
+    useEnglish = d.lang === 'en';
+    document.body.classList.toggle('use-en', useEnglish);
+    darkMode = d.dark || false;
+    document.body.classList.toggle('dark', darkMode);
+    
+    if (d.customer) {
+        document.getElementById('custName').value = d.customer.name || '';
+        document.getElementById('custPhone').value = d.customer.phone || '';
+        document.getElementById('siteAddr').value = d.customer.address || '';
+        document.getElementById('orderID').value = d.customer.orderID || '';
+    }
+    
+    if (d.schedule) {
+        document.getElementById('date_measure').value = d.schedule.measure?.date || '';
+        document.getElementById('status_measure').value = d.schedule.measure?.status || '🔴 待处理 / Pending';
+        document.getElementById('date_produce').value = d.schedule.produce?.date || '';
+        document.getElementById('status_produce').value = d.schedule.produce?.status || '🔴 待处理 / Pending';
+        document.getElementById('date_delivery').value = d.schedule.delivery?.date || '';
+        document.getElementById('status_delivery').value = d.schedule.delivery?.status || '🔴 待处理 / Pending';
+        document.getElementById('date_install').value = d.schedule.install?.date || '';
+        document.getElementById('status_install').value = d.schedule.install?.status || '🔴 待处理 / Pending';
+        document.getElementById('date_handover').value = d.schedule.handover?.date || '';
+        document.getElementById('status_handover').value = d.schedule.handover?.status || '🔴 待处理 / Pending';
+    }
+    
+    if (d.warranty) {
+        document.getElementById('warranty_content').value = d.warranty.content || '';
+        document.getElementById('warranty_period').value = d.warranty.period || '';
+        updateWarrantyFooter();
+    }
+    
+    snags = d.snags || [];
+    snagId = snags.length;
+    renderSnags();
+    
+    if (d.signature) {
+        document.getElementById('clientSign').value = d.signature.client || '';
+        document.getElementById('contractorSign').value = d.signature.contractor || '';
+        document.getElementById('remarks').value = d.signature.remarks || '';
+    }
+}
+
+function exportExcel() {
+    const d = collectData();
+    const wb = XLSX.utils.book_new();
+    const rows = [
+        [useEnglish?'Client Name':'客户姓名', d.customer.name],
+        [useEnglish?'Phone':'电话', d.customer.phone],
+        [useEnglish?'Address':'地址', d.customer.address],
+        [useEnglish?'Order No.':'订单号', d.customer.orderID],
+        [],
+        [useEnglish?'Schedule':'进度'],
+        ['复尺确认 / Re-measurement', d.schedule.measure.date, d.schedule.measure.status],
+        ['生产备货 / Production', d.schedule.produce.date, d.schedule.produce.status],
+        ['送货到场 / Delivery', d.schedule.delivery.date, d.schedule.delivery.status],
+        ['安装完成 / Installation', d.schedule.install.date, d.schedule.install.status],
+        ['验收交付 / Handover', d.schedule.handover.date, d.schedule.handover.status],
+        [],
+        [useEnglish?'Warranty':'质保'],
+        [useEnglish?'Details':'内容', d.warranty.content],
+        [useEnglish?'Period':'期限', d.warranty.period],
+        [],
+        [useEnglish?'Snag List':'整改记录'],
+        [useEnglish?'Priority':'优先级', useEnglish?'Location':'位置', useEnglish?'Issue':'问题', useEnglish?'Due Date':'完成日期', useEnglish?'Status':'状态']
+    ];
+    d.snags.forEach(s => rows.push([s.priority, s.location, s.issue, s.due, s.status]));
+    rows.push([]);
+    rows.push([useEnglish?'Client Signature':'客户签署', d.signature.client]);
+    rows.push([useEnglish?'Contractor Signature':'施工方签署', d.signature.contractor]);
+    rows.push([useEnglish?'Remarks':'备注', d.signature.remarks]);
+    
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, useEnglish?'Handover':'交付确认书');
+    XLSX.writeFile(wb, `交付确认书_${d.customer.name||'项目'}.xlsx`);
+    saveStatus('Excel已导出 ✓');
+}
+
+async function exportPDF() {
+    saveStatus('生成PDF中...');
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        doc.setFontSize(18);
+        doc.text(useEnglish ? 'Handover Form' : '交付确认书', 105, 20, { align: 'center' });
+        doc.setFontSize(11);
+        doc.text(`${useEnglish?'Client':'客户'}: ${document.getElementById('custName').value}`, 20, 35);
+        doc.text(`${useEnglish?'Phone':'电话'}: ${document.getElementById('custPhone').value}`, 20, 42);
+        doc.text(`${useEnglish?'Address':'地址'}: ${document.getElementById('siteAddr').value}`, 20, 49);
+        doc.text(`${useEnglish?'Order No.':'订单号'}: ${document.getElementById('orderID').value}`, 20, 56);
+        
+        let y = 65;
+        doc.text(useEnglish ? 'Schedule' : '项目进度', 20, y); y += 7;
+        doc.text(`复尺确认 / Re-measurement: ${document.getElementById('status_measure').value} (${document.getElementById('date_measure').value || '-'})`, 20, y); y += 6;
+        doc.text(`生产备货 / Production: ${document.getElementById('status_produce').value} (${document.getElementById('date_produce').value || '-'})`, 20, y); y += 6;
+        doc.text(`送货到场 / Delivery: ${document.getElementById('status_delivery').value} (${document.getElementById('date_delivery').value || '-'})`, 20, y); y += 6;
+        doc.text(`安装完成 / Installation: ${document.getElementById('status_install').value} (${document.getElementById('date_install').value || '-'})`, 20, y); y += 6;
+        doc.text(`验收交付 / Handover: ${document.getElementById('status_handover').value} (${document.getElementById('date_handover').value || '-'})`, 20, y); y += 10;
+        
+        doc.text(useEnglish ? 'Warranty' : '质保说明', 20, y); y += 7;
+        doc.text(`${useEnglish?'Details':'内容'}: ${document.getElementById('warranty_content').value || '-'}`, 20, y); y += 6;
+        doc.text(`${useEnglish?'Period':'期限'}: ${document.getElementById('warranty_period').value || '-'}`, 20, y); y += 10;
+        
+        doc.text(useEnglish ? 'Snag List' : '整改记录', 20, y); y += 7;
+        snags.forEach((item, i) => {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text(`${i+1}. ${item.priority} ${item.location} - ${item.status}`, 20, y); y += 5;
+            doc.text(`   ${item.issue.substring(0, 80)}`, 20, y); y += 7;
+        });
+        
+        if (y > 240) { doc.addPage(); y = 30; }
+        y += 10;
+        doc.text(`${useEnglish?'Client Signature':'客户签署'}: ${document.getElementById('clientSign').value}`, 20, y);
+        y += 10;
+        doc.text(`${useEnglish?'Contractor Signature':'施工方签署'}: ${document.getElementById('contractorSign').value}`, 20, y);
+        y += 10;
+        doc.text(`${useEnglish?'Remarks':'备注'}: ${document.getElementById('remarks').value}`, 20, y);
+        
+        doc.save(`交付确认书_${document.getElementById('custName').value||'项目'}.pdf`);
+        saveStatus('PDF已导出 ✓');
+    } catch(e) {
+        alert(useEnglish ? 'PDF export failed, try Excel instead' : 'PDF导出失败，可用Excel代替');
+        saveStatus('出错');
+    }
+}
+
+window.onload = function() {
+    try {
+        const saved = localStorage.getItem('HANDOVER_DATA');
+        if (saved) applyData(JSON.parse(saved));
+    } catch(e) {}
+    
+    document.addEventListener('input', autoSave);
+    document.addEventListener('change', autoSave);
+    
+    saveStatus('就绪');
 };
 </script>
 </body>
