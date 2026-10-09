@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>交付确认书 | Handover Form</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 body { background: #fff; color: #333; padding: 20px; max-width: 1000px; margin: 0 auto; }
 body.dark { background: #1a1a2e; color: #eee; }
 button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 2px; }
@@ -33,7 +32,7 @@ body.dark input, body.dark select, body.dark textarea { background: #0f3460; col
 [contenteditable="true"]:focus { outline: 1px solid #234e9e; }
 .check-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; flex-wrap: wrap; }
 .check-item input[type="date"] { flex: 0 0 130px; margin: 0; }
-.check-item select { flex: 0 0 160px; margin: 0; }
+.check-item select { flex: 0 0 220px; margin: 0; }
 .lang-en { display: none; }
 body.use-en .lang-zh { display: none; }
 body.use-en .lang-en { display: inline; }
@@ -80,7 +79,7 @@ body.dark .snag-row { border-color: #334155; background: #1e293b; }
     <h2><span class="lang-zh">项目信息</span><span class="lang-en">Project Info</span></h2>
     <div class="grid-row">
         <div class="grid-col">
-            <label><span class="lang-zh">客户姓名</span><span class="lang-en">Name</span></label>
+            <label><span class="lang-zh">客户姓名</span><span class="lang-en">Client Name</span></label>
             <input type="text" id="custName">
         </div>
         <div class="grid-col">
@@ -523,83 +522,166 @@ function applyData(d) {
 
 function exportExcel() {
     const d = collectData();
-    const wb = XLSX.utils.book_new();
-    const rows = [
-        [useEnglish?'Client Name':'客户姓名', d.customer.name],
-        [useEnglish?'Phone':'电话', d.customer.phone],
-        [useEnglish?'Address':'地址', d.customer.address],
-        [useEnglish?'Order No.':'订单号', d.customer.orderID],
-        [],
-        [useEnglish?'Schedule':'进度'],
-        ['复尺确认 / Re-measurement', d.schedule.measure.date, d.schedule.measure.status],
-        ['生产备货 / Production', d.schedule.produce.date, d.schedule.produce.status],
-        ['送货到场 / Delivery', d.schedule.delivery.date, d.schedule.delivery.status],
-        ['安装完成 / Installation', d.schedule.install.date, d.schedule.install.status],
-        ['验收交付 / Handover', d.schedule.handover.date, d.schedule.handover.status],
-        [],
-        [useEnglish?'Warranty':'质保'],
-        [useEnglish?'Details':'内容', d.warranty.content],
-        [useEnglish?'Period':'期限', d.warranty.period],
-        [],
-        [useEnglish?'Snag List':'整改记录'],
-        [useEnglish?'Priority':'优先级', useEnglish?'Location':'位置', useEnglish?'Issue':'问题', useEnglish?'Due Date':'完成日期', useEnglish?'Status':'状态']
-    ];
-    d.snags.forEach(s => rows.push([s.priority, s.location, s.issue, s.due, s.status]));
-    rows.push([]);
-    rows.push([useEnglish?'Client Signature':'客户签署', d.signature.client]);
-    rows.push([useEnglish?'Contractor Signature':'施工方签署', d.signature.contractor]);
-    rows.push([useEnglish?'Remarks':'备注', d.signature.remarks]);
+    const lang = useEnglish;
     
+    // 构建完整表格数据
+    const rows = [];
+    
+    // === 项目信息 ===
+    rows.push([lang ? 'Client Name' : '客户姓名', d.customer.name]);
+    rows.push([lang ? 'Phone' : '电话', d.customer.phone]);
+    rows.push([lang ? 'Address' : '地址', d.customer.address]);
+    rows.push([lang ? 'Order No.' : '订单号', d.customer.orderID]);
+    rows.push([]);
+    
+    // === 项目进度 ===
+    rows.push([lang ? 'Project Schedule' : '项目进度']);
+    rows.push([lang ? 'Item' : '项目', lang ? 'Date' : '日期', lang ? 'Status' : '状态']);
+    rows.push([lang ? 'Re-measurement' : '复尺确认', d.schedule.measure.date, d.schedule.measure.status]);
+    rows.push([lang ? 'Production' : '生产备货', d.schedule.produce.date, d.schedule.produce.status]);
+    rows.push([lang ? 'Delivery' : '送货到场', d.schedule.delivery.date, d.schedule.delivery.status]);
+    rows.push([lang ? 'Installation' : '安装完成', d.schedule.install.date, d.schedule.install.status]);
+    rows.push([lang ? 'Handover' : '验收交付', d.schedule.handover.date, d.schedule.handover.status]);
+    rows.push([]);
+    
+    // === 质保信息 ===
+    rows.push([lang ? 'Warranty' : '质保说明']);
+    rows.push([lang ? 'Details' : '质保内容', d.warranty.content]);
+    rows.push([lang ? 'Period' : '质保期限', d.warranty.period]);
+    rows.push([]);
+    
+    // === 整改记录 ===
+    rows.push([lang ? 'Snag List' : '整改记录']);
+    rows.push([
+        lang ? 'Priority' : '优先级',
+        lang ? 'Location' : '位置',
+        lang ? 'Issue' : '问题描述',
+        lang ? 'Due Date' : '完成日期',
+        lang ? 'Status' : '状态'
+    ]);
+    if (d.snags.length === 0) {
+        rows.push([lang ? 'No records' : '暂无记录', '', '', '', '']);
+    } else {
+        d.snags.forEach(s => {
+            rows.push([s.priority, s.location, s.issue, s.due, s.status]);
+        });
+    }
+    rows.push([]);
+    
+    // === 签署 ===
+    rows.push([lang ? 'Client Signature' : '客户签署', d.signature.client]);
+    rows.push([lang ? 'Contractor Signature' : '施工方签署', d.signature.contractor]);
+    rows.push([lang ? 'Remarks' : '备注', d.signature.remarks]);
+    
+    // 生成Excel并设置列宽
+    const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, useEnglish?'Handover':'交付确认书');
-    XLSX.writeFile(wb, `交付确认书_${d.customer.name||'项目'}.xlsx`);
+    
+    // 设置列宽，防止文字被截断
+    ws['!cols'] = [
+        { wch: 25 },  // A列 - 标题
+        { wch: 40 },  // B列 - 内容/详情
+        { wch: 15 },  // C列 - 日期
+        { wch: 30 }   // D列 - 状态
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, lang ? 'Handover' : '交付确认书');
+    XLSX.writeFile(wb, `交付确认书_${d.customer.name || '项目'}.xlsx`);
     saveStatus('Excel已导出 ✓');
 }
 
 async function exportPDF() {
     saveStatus('生成PDF中...');
     try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        doc.setFontSize(18);
-        doc.text(useEnglish ? 'Handover Form' : '交付确认书', 105, 20, { align: 'center' });
-        doc.setFontSize(11);
-        doc.text(`${useEnglish?'Client':'客户'}: ${document.getElementById('custName').value}`, 20, 35);
-        doc.text(`${useEnglish?'Phone':'电话'}: ${document.getElementById('custPhone').value}`, 20, 42);
-        doc.text(`${useEnglish?'Address':'地址'}: ${document.getElementById('siteAddr').value}`, 20, 49);
-        doc.text(`${useEnglish?'Order No.':'订单号'}: ${document.getElementById('orderID').value}`, 20, 56);
+        const d = collectData();
+        const lang = useEnglish;
         
-        let y = 65;
-        doc.text(useEnglish ? 'Schedule' : '项目进度', 20, y); y += 7;
-        doc.text(`复尺确认 / Re-measurement: ${document.getElementById('status_measure').value} (${document.getElementById('date_measure').value || '-'})`, 20, y); y += 6;
-        doc.text(`生产备货 / Production: ${document.getElementById('status_produce').value} (${document.getElementById('date_produce').value || '-'})`, 20, y); y += 6;
-        doc.text(`送货到场 / Delivery: ${document.getElementById('status_delivery').value} (${document.getElementById('date_delivery').value || '-'})`, 20, y); y += 6;
-        doc.text(`安装完成 / Installation: ${document.getElementById('status_install').value} (${document.getElementById('date_install').value || '-'})`, 20, y); y += 6;
-        doc.text(`验收交付 / Handover: ${document.getElementById('status_handover').value} (${document.getElementById('date_handover').value || '-'})`, 20, y); y += 10;
+        // 用浏览器打印方式，确保中文完整显示
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>${lang ? 'Handover Form' : '交付确认书'}</title>
+        <style>
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; padding: 30px; line-height: 1.8; color: #000; font-size: 14px; }
+        h1 { text-align: center; margin-bottom: 25px; font-size: 22px; border-bottom: 2px solid #234e9e; padding-bottom: 10px; }
+        h3 { margin: 20px 0 10px; font-size: 16px; color: #234e9e; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
+        td, th { padding: 8px 10px; border: 1px solid #ccc; vertical-align: top; }
+        th { background: #f0f4f8; font-weight: bold; text-align: left; }
+        .section-header { background: #e8eef8; font-weight: bold; font-size: 15px; }
+        .noborder td { border: none; padding: 6px 2px; }
+        .wide { width: 70%; }
+        .sign-row { margin-top: 30px; display: flex; justify-content: space-between; }
+        .sign-col { width: 45%; }
+        </style>
+        </head>
+        <body>
+        <h1>${lang ? 'Handover Form' : '交付确认书'}</h1>
         
-        doc.text(useEnglish ? 'Warranty' : '质保说明', 20, y); y += 7;
-        doc.text(`${useEnglish?'Details':'内容'}: ${document.getElementById('warranty_content').value || '-'}`, 20, y); y += 6;
-        doc.text(`${useEnglish?'Period':'期限'}: ${document.getElementById('warranty_period').value || '-'}`, 20, y); y += 10;
+        <h3>${lang ? 'Project Information' : '项目信息'}</h3>
+        <table class="noborder">
+            <tr><td style="width:120px; font-weight:bold;">${lang ? 'Client Name' : '客户姓名'}</td><td class="wide">${d.customer.name || ''}</td></tr>
+            <tr><td style="font-weight:bold;">${lang ? 'Phone' : '电话'}</td><td>${d.customer.phone || ''}</td></tr>
+            <tr><td style="font-weight:bold;">${lang ? 'Address' : '地址'}</td><td>${d.customer.address || ''}</td></tr>
+            <tr><td style="font-weight:bold;">${lang ? 'Order No.' : '订单号'}</td><td>${d.customer.orderID || ''}</td></tr>
+        </table>
         
-        doc.text(useEnglish ? 'Snag List' : '整改记录', 20, y); y += 7;
-        snags.forEach((item, i) => {
-            if (y > 270) { doc.addPage(); y = 20; }
-            doc.text(`${i+1}. ${item.priority} ${item.location} - ${item.status}`, 20, y); y += 5;
-            doc.text(`   ${item.issue.substring(0, 80)}`, 20, y); y += 7;
-        });
+        <h3>${lang ? 'Project Schedule' : '项目进度'}</h3>
+        <table>
+            <tr><th>${lang ? 'Item' : '项目'}</th><th style="width:130px;">${lang ? 'Date' : '日期'}</th><th>${lang ? 'Status' : '状态'}</th></tr>
+            <tr><td>${lang ? 'Re-measurement' : '复尺确认'}</td><td>${d.schedule.measure.date || '-'}</td><td>${d.schedule.measure.status}</td></tr>
+            <tr><td>${lang ? 'Production' : '生产备货'}</td><td>${d.schedule.produce.date || '-'}</td><td>${d.schedule.produce.status}</td></tr>
+            <tr><td>${lang ? 'Delivery' : '送货到场'}</td><td>${d.schedule.delivery.date || '-'}</td><td>${d.schedule.delivery.status}</td></tr>
+            <tr><td>${lang ? 'Installation' : '安装完成'}</td><td>${d.schedule.install.date || '-'}</td><td>${d.schedule.install.status}</td></tr>
+            <tr><td>${lang ? 'Handover' : '验收交付'}</td><td>${d.schedule.handover.date || '-'}</td><td>${d.schedule.handover.status}</td></tr>
+        </table>
         
-        if (y > 240) { doc.addPage(); y = 30; }
-        y += 10;
-        doc.text(`${useEnglish?'Client Signature':'客户签署'}: ${document.getElementById('clientSign').value}`, 20, y);
-        y += 10;
-        doc.text(`${useEnglish?'Contractor Signature':'施工方签署'}: ${document.getElementById('contractorSign').value}`, 20, y);
-        y += 10;
-        doc.text(`${useEnglish?'Remarks':'备注'}: ${document.getElementById('remarks').value}`, 20, y);
+        <h3>${lang ? 'Warranty' : '质保说明'}</h3>
+        <table class="noborder">
+            <tr><td style="width:120px; font-weight:bold;">${lang ? 'Details' : '质保内容'}</td><td>${d.warranty.content || '-'}</td></tr>
+            <tr><td style="font-weight:bold;">${lang ? 'Period' : '质保期限'}</td><td>${d.warranty.period || '-'}</td></tr>
+        </table>
         
-        doc.save(`交付确认书_${document.getElementById('custName').value||'项目'}.pdf`);
-        saveStatus('PDF已导出 ✓');
+        <h3>${lang ? 'Snag List' : '整改记录'}</h3>
+        ${d.snags.length > 0 ? `
+        <table>
+            <tr><th style="width:5%;">#</th><th style="width:8%;">${lang ? 'Priority' : '优先级'}</th><th style="width:15%;">${lang ? 'Location' : '位置'}</th><th>${lang ? 'Issue' : '问题描述'}</th><th style="width:13%;">${lang ? 'Due Date' : '完成日期'}</th><th style="width:18%;">${lang ? 'Status' : '状态'}</th></tr>
+            ${d.snags.map((s, i) => `<tr><td>${i+1}</td><td>${s.priority}</td><td>${s.location || '-'}</td><td>${s.issue || '-'}</td><td>${s.due || '-'}</td><td>${s.status}</td></tr>`).join('')}
+        </table>` : `<p style="color:#666;">${lang ? 'No records' : '暂无记录'}</p>`}
+        
+        <h3>${lang ? 'Signatures' : '签署确认'}</h3>
+        <p style="margin-bottom:20px;">${lang 
+            ? 'Works completed and inspected. Handover effective today. Warranty terms explained.' 
+            : '本项目按合同及图纸施工完成，经双方验收合格，即日起交付使用。质保条款已当面说明。'}</p>
+        
+        <div class="sign-row">
+            <div class="sign-col">
+                <p><strong>${lang ? 'Client Signature' : '客户签署'}</strong></p>
+                <p style="border-bottom:1px solid #999; padding:10px 0; min-height:40px;">${d.signature.client || ''}</p>
+            </div>
+            <div class="sign-col">
+                <p><strong>${lang ? 'Contractor Signature' : '施工方签署'}</strong></p>
+                <p style="border-bottom:1px solid #999; padding:10px 0; min-height:40px;">${d.signature.contractor || ''}</p>
+            </div>
+        </div>
+        
+        <p style="margin-top:20px;"><strong>${lang ? 'Remarks' : '备注'}：</strong>${d.signature.remarks || ''}</p>
+        
+        <p style="margin-top:40px; text-align:center; color:#666; font-size:12px;">
+            ${lang ? 'Generated on' : '生成时间'}: ${new Date().toLocaleString('zh-MY')}
+        </p>
+        </body>
+        </html>
+        `);
+        printWindow.document.close();
+        saveStatus('PDF已生成 ✓ — 新页面按 Ctrl+P → 保存为PDF');
+        
     } catch(e) {
-        alert(useEnglish ? 'PDF export failed, try Excel instead' : 'PDF导出失败，可用Excel代替');
+        console.error(e);
+        alert(lang ? 'PDF export failed, use Excel instead' : 'PDF导出失败，可用Excel代替');
         saveStatus('出错');
     }
 }
